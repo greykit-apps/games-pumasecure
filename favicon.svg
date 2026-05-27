@@ -1,19 +1,40 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <defs>
-    <filter id="g" x="-60%" y="-60%" width="220%" height="220%">
-      <feGaussianBlur stdDeviation="2" result="blur"/>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="1.5" result="blur"/>
       <feMerge>
         <feMergeNode in="blur"/>
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
   </defs>
-  <rect width="32" height="32" rx="5" fill="#020c03" stroke="#00ff41" stroke-width="0.75" stroke-opacity="0.35"/>
-  <g fill="#00ff41" filter="url(#g)">
-    <ellipse cx="16"   cy="21"   rx="6"   ry="5.5"/>
-    <ellipse cx="7.5"  cy="15"   rx="2.8" ry="3.2"/>
-    <ellipse cx="12.5" cy="10.5" rx="2.8" ry="3.2"/>
-    <ellipse cx="19.5" cy="10.5" rx="2.8" ry="3.2"/>
-    <ellipse cx="24.5" cy="15"   rx="2.8" ry="3.2"/>
-  </g>
+
+  <!-- Background -->
+  <rect width="32" height="32" rx="4" fill="#020c03"/>
+
+  <!-- Concentric rings (network topology, dim) -->
+  <circle cx="16" cy="17" r="7"  fill="none" stroke="#00ff41" stroke-width="0.5" opacity="0.22"/>
+  <circle cx="16" cy="17" r="12" fill="none" stroke="#00ff41" stroke-width="0.5" opacity="0.16"/>
+
+  <!-- Dim node icons (open circles, representing unselected assets) -->
+  <circle cx="16" cy="10" r="2"   fill="none" stroke="#00ff41" stroke-width="0.75" opacity="0.45"/>
+  <circle cx="9"  cy="17" r="2"   fill="none" stroke="#00ff41" stroke-width="0.75" opacity="0.45"/>
+  <circle cx="28" cy="12" r="2"   fill="none" stroke="#00ff41" stroke-width="0.75" opacity="0.35"/>
+
+  <!-- Bright sweeping arc (scan / attack path) -->
+  <path d="M16,24 C 29,17 27,3 7,10"
+        fill="none" stroke="#00ff41" stroke-width="1.5" stroke-linecap="round"
+        filter="url(#glow)"/>
+
+  <!-- Selected node at arc start — bright, with crosshair rings -->
+  <circle cx="16" cy="24" r="3.2" fill="none" stroke="#00ff41" stroke-width="1"   filter="url(#glow)"/>
+  <circle cx="16" cy="24" r="1.4" fill="#00ff41"                                   filter="url(#glow)"/>
+  <!-- Crosshair ticks -->
+  <line x1="16" y1="19.2" x2="16" y2="20.5" stroke="#00ff41" stroke-width="0.8" filter="url(#glow)"/>
+  <line x1="16" y1="27.5" x2="16" y2="28.8" stroke="#00ff41" stroke-width="0.8" filter="url(#glow)"/>
+  <line x1="11.2" y1="24" x2="12.5" y2="24" stroke="#00ff41" stroke-width="0.8" filter="url(#glow)"/>
+  <line x1="19.5" y1="24" x2="20.8" y2="24" stroke="#00ff41" stroke-width="0.8" filter="url(#glow)"/>
+
+  <!-- Target node at arc end — bright open circle -->
+  <circle cx="7" cy="10" r="2.2" fill="none" stroke="#00ff41" stroke-width="1.1" filter="url(#glow)"/>
 </svg>
