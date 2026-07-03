@@ -849,7 +849,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
         <p style="color:var(--green);margin-bottom:8px">You've been hired to secure a network that has never been properly maintained. You have limited time, limited headcount, and a tight budget. Discover assets, find vulnerabilities, fix what you can, and defend against an AI red team before they reach your critical infrastructure.</p>
 
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">THE GOAL</p>
-        <p>Discover the network, scan assets, remediate vulnerabilities, and detect and respond to compromises. You're scored on containment, security posture, assessment coverage, incident response speed, and budget efficiency. Any critical asset breached = <strong style="color:var(--red)">automatic F</strong>.</p>
+        <p>Discover the network, scan assets, remediate vulnerabilities, and detect and respond to compromises. You're scored on containment, security posture, assessment coverage, incident response speed, and budget efficiency. At difficulty 6+, any critical asset breached = <strong style="color:var(--red)">automatic F</strong>; below that it's a heavy penalty.</p>
 
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">RESOURCES</p>
         <p><strong style="color:var(--green)">Analysts</strong> — Your most precious resource. Each analyst can do one thing at a time: vuln scan, deploy EDR, fix vulnerabilities, investigate, respond to incidents, or rebuild systems. You start with 2. Hire a contractor mid-run (+1 analyst, $10K) using the yellow button next to the analyst count.</p>
@@ -864,7 +864,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
           <strong style="color:var(--green)">Response</strong> (15%) — Speed of incident detection and remediation.<br>
           <strong style="color:var(--green)">Efficiency</strong> (15%) — Risk reduced per dollar spent.
         </p>
-        <p style="margin-top:4px">Grades: S (95+, TL5+) / A (85+) / B (70+) / C (55+) / D (40+) / F</p>
+        <p style="margin-top:4px">Grades: S (95+, difficulty 6+) / A (85+) / B (70+) / C (55+) / D (40+) / F</p>
 
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">CONTROLS</p>
         <p style="padding-left:12px">
@@ -883,7 +883,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
           &bull; Scan perimeter nodes first — they're the red team's entry point.<br>
           &bull; Fix "Missing Monitoring" vulns early — without them, you're blind to attacks.<br>
           &bull; Deploy EDR on critical assets — Tier 1 detection catches compromises instantly.<br>
-          &bull; Mitigate is your friend when budget runs low — it always works.<br>
+          &bull; Mitigate is your friend when budget runs low — it always works, but erodes over time.<br>
           &bull; A cheap Configure can downgrade a Critical to Medium, making it far less exploitable.<br>
           &bull; Watch the SIEM feed — vague zone alerts mean a scanned node is under attack.<br>
           &bull; If you see no alerts at all on unscanned nodes, you might already be compromised.
@@ -901,8 +901,8 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
         <p style="margin-top:4px;padding-left:12px">
           <strong style="color:var(--green)">Perimeter (Zone 0-1)</strong> — Internet-facing systems. The red team's entry point. Firewalls, VPNs, web servers, Wi-Fi access points.<br>
           <strong style="color:var(--amber)">Internal (Zone 2)</strong> — Corporate infrastructure. Workstations, printers, internal servers.<br>
-          <strong style="color:var(--red)">Secure (Zone 3)</strong> — Protected systems. Application servers, monitoring, domain controllers.<br>
-          <strong style="color:var(--red)">Critical (Zone 4)</strong> — Crown jewels. Databases, SCADA systems, data stores. A breach here is an automatic F.
+          <strong style="color:var(--red)">Secure (Zone 3)</strong> — Protected systems. Application servers, CI/CD, internal APIs, dev environments.<br>
+          <strong style="color:var(--red)">Critical (Zone 4)</strong> — Crown jewels. Databases, domain controllers, key vaults, backups. A breach here is an automatic F at difficulty 6+, a heavy penalty below.
         </p>
 
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">ASSET DISCOVERY</p>
@@ -957,7 +957,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
 
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">REMEDIATION OPTIONS</p>
         <p>Listed from least to most effective. Hover over buttons in-game for details.</p>
-        <p style="margin-top:6px"><strong style="color:var(--amber)">Mitigate</strong> — Applies a workaround that reduces exploitability by 50-75%. Cheap, fast, and <strong>always succeeds</strong>. Doesn't fix the root cause — the vuln remains, just harder to exploit. Use this when budget is tight, for zero-days, or as a stopgap until you can apply a real fix.</p>
+        <p style="margin-top:6px"><strong style="color:var(--amber)">Mitigate</strong> — Applies a workaround that reduces exploitability by 50-75%. Cheap, fast, and <strong>always succeeds</strong>. Doesn't fix the root cause — and <strong style="color:var(--amber)">it erodes</strong>: after about a minute the protection decays to roughly a third of its strength over the next four. Watch for the SIEM warning, then re-mitigate or upgrade to a permanent fix. A stopgap, not a solution.</p>
         <p style="margin-top:6px"><strong style="color:var(--green)">Configure</strong> — A configuration change that reduces severity by 3-5 points. Cheap and fast with 85-100% success rate. May fail because operations reverts the config change. Good for quickly downgrading Critical vulns to manageable levels.</p>
         <p style="margin-top:6px"><strong style="color:var(--green)">Patch</strong> — Applies a vendor patch for a full fix. Moderate cost and time, 70-95% success rate. May fail due to change window denials, dependency conflicts, or incompatible systems. The workhorse fix for most vulns.</p>
         <p style="margin-top:6px"><strong style="color:var(--cyan)">Replace</strong> — Full component replacement. Expensive and slow, but 95-100% success rate. Required for end-of-life systems that can't be patched. The most thorough fix available.</p>
@@ -1136,6 +1136,13 @@ const NODE_STRATEGY = {
   unmanaged:    { pivotValue: 0.3, targetPriority: 0.2, strategicBuff: null },
 };
 
+// Physical intrusion risk is classified by node TYPE, not zone number: consumer/edge
+// devices (lobby Wi-Fi, IoT sensors, unattended workstations) are low-risk grabs with no
+// incarceration risk; badge-controlled infrastructure is high-risk. Cloud assets have no
+// physical presence on site at all and can never be physically attacked.
+const PHYS_LOW_RISK_TYPES = new Set(['wifiap', 'iot', 'workstation', 'printer', 'unmanaged']);
+const PHYS_EXEMPT_TYPES = new Set(['cloudvm', 'container', 'saas']);
+
 const ZONE_NAMES = ['Perimeter', 'DMZ', 'Corporate', 'Internal Services', 'Data / Critical', 'Cloud / Shadow IT'];
 const ZONE_BASE_CRIT = [1, 2, 2, 3, 5, 3];
 const ZONE_NODE_RANGE = [[2,4],[3,6],[5,10],[4,8],[2,5],[2,6]];
@@ -1193,15 +1200,17 @@ const FIX_TYPES = {
 const REBUILD_COSTS = { 0: 10000, 1: 12000, 2: 10000, 3: 15000, 4: 20000, 5: 8000 };
 const REBUILD_TIMES = { 0: [25,35], 1: [25,35], 2: [20,30], 3: [30,40], 4: [35,45], 5: [20,28] };
 
+// Unlock pacing: a solid Normal run earns ~60-80 intel, more at higher difficulty.
+// Curve targets a career arc of roughly a dozen good runs to unlock everything.
 const NETWORK_TEMPLATES = [
   { id: 'small_office', name: 'Small Office', weights: [0.6,0.7,0.5,0.4,0.5,0.3], intelReq: 0 },
-  { id: 'enterprise',   name: 'Enterprise',   weights: [1,1,1,1,1,0.7], intelReq: 25 },
-  { id: 'manufacturing',name: 'Manufacturing', weights: [0.9,0.6,0.8,0.7,0.8,0.4], intelReq: 50 },
-  { id: 'university',   name: 'University',    weights: [0.7,0.9,1.4,0.8,0.6,1.2], intelReq: 100 },
-  { id: 'hospital',     name: 'Hospital',      weights: [0.8,0.8,1.2,1,0.9,0.5], intelReq: 150 },
-  { id: 'startup',      name: 'Startup',       weights: [0.5,0.5,0.4,0.8,0.6,1.5], intelReq: 250 },
-  { id: 'fintech',      name: 'Fintech',       weights: [1.2,0.8,0.6,1.1,1.3,0.8], intelReq: 400 },
-  { id: 'government',   name: 'Government',    weights: [1.3,1.1,1,1.2,1.1,0.3], intelReq: 600 },
+  { id: 'enterprise',   name: 'Enterprise',   weights: [1,1,1,1,1,0.7], intelReq: 40 },
+  { id: 'manufacturing',name: 'Manufacturing', weights: [0.9,0.6,0.8,0.7,0.8,0.4], intelReq: 100 },
+  { id: 'university',   name: 'University',    weights: [0.7,0.9,1.4,0.8,0.6,1.2], intelReq: 180 },
+  { id: 'hospital',     name: 'Hospital',      weights: [0.8,0.8,1.2,1,0.9,0.5], intelReq: 280 },
+  { id: 'startup',      name: 'Startup',       weights: [0.5,0.5,0.4,0.8,0.6,1.5], intelReq: 420 },
+  { id: 'fintech',      name: 'Fintech',       weights: [1.2,0.8,0.6,1.1,1.3,0.8], intelReq: 600 },
+  { id: 'government',   name: 'Government',    weights: [1.3,1.1,1,1.2,1.1,0.3], intelReq: 850 },
 ];
 
 // Legacy constant for backward compat — actual modifier system uses MODIFIER_DEFS
@@ -1269,7 +1278,7 @@ let diffConfig = {
 
 function getSliderValue(key) { return SLIDER_DEFS[key].values[diffConfig.sliders[key] || 0]; }
 
-function computeDifficultyScore() {
+function computeDifficultyScore(cfg = diffConfig) {
   // Each slider normalized 0-1 where 1 = hardest
   // For 'harder' sliders (RT): position 4 = hardest → pos/4
   // For player sliders: position 4 = easiest → (4-pos)/4
@@ -1279,7 +1288,7 @@ function computeDifficultyScore() {
   };
   let sliderScore = 0;
   for (const [k, w] of Object.entries(sw)) {
-    const pos = diffConfig.sliders[k] || 0;
+    const pos = cfg.sliders[k] || 0;
     const hardness = SLIDER_DEFS[k].harder ? pos / 4 : (4 - pos) / 4;
     sliderScore += hardness * w;
   }
@@ -1293,7 +1302,7 @@ function computeDifficultyScore() {
     legacy: 0.04, zeroday_mod: 0.05, shadow_it: 0.04, supply_chain: 0.05,
   };
   let modScore = 0;
-  for (const [id, pos] of Object.entries(diffConfig.mods)) {
+  for (const [id, pos] of Object.entries(cfg.mods)) {
     if (pos <= 0) continue;
     const w = MOD_WEIGHTS[id] || 0;
     const strength = pos === 1 ? 0.15 : 1.0; // Random = small impact, ON = full
@@ -1302,6 +1311,13 @@ function computeDifficultyScore() {
   const raw = clamp(sliderScore + modScore, 0, 1);
   return clamp(Math.round(raw * 90 + 10) / 10, 1, 10); // 1.0 to 10.0
 }
+
+// Difficulty anchors — derived from the presets themselves so future retuning stays honest.
+// NORMAL_DIFF_ANCHOR: the Normal preset always yields exactly 1.0× intel.
+// HARD_GATE_DIFF: at/above this difficulty a critical breach is an automatic F,
+// and the S grade becomes attainable. Sits above Normal, at roughly the Hard preset.
+const NORMAL_DIFF_ANCHOR = computeDifficultyScore(DIFFICULTY_PRESETS.normal);
+const HARD_GATE_DIFF = 6.0;
 
 function detectPreset() {
   for (const [id, preset] of Object.entries(DIFFICULTY_PRESETS)) {
@@ -1398,6 +1414,20 @@ function sevLabel(sev) {
   if (sev >= 4) return 'medium';
   if (sev >= 0.1) return 'low';
   return 'info';
+}
+
+// ── Mitigation erosion ──
+// A mitigation holds full strength for MITIGATION_GRACE seconds, then erodes linearly
+// over MITIGATION_DECAY seconds down to MITIGATION_FLOOR of its original strength.
+// Models compensating controls losing effectiveness as attackers adapt — mitigate buys
+// time, it doesn't buy safety. Re-mitigate to refresh, or upgrade to a permanent fix.
+const MITIGATION_GRACE = 60, MITIGATION_DECAY = 240, MITIGATION_FLOOR = 0.35;
+function getMitigationFactor(v) {
+  if (!v.mitigated || v.fixed) return 0;
+  const age = (R ? R.elapsed : 0) - (v.mitigatedAt || 0);
+  if (age <= MITIGATION_GRACE) return v.mitigationFactor;
+  const t = Math.min(1, (age - MITIGATION_GRACE) / MITIGATION_DECAY);
+  return v.mitigationFactor * (1 - (1 - MITIGATION_FLOOR) * t);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1754,7 +1784,7 @@ function renderDifficultyPanel() {
   html += '</div>';
 
   // Difficulty score
-  const intelMult = (score / 4.3).toFixed(1);
+  const intelMult = (score / NORMAL_DIFF_ANCHOR).toFixed(1);
   html += `<div class="diff-score">DIFFICULTY <span class="diff-score-val" style="color:${scoreColor}">${score.toFixed(1)}</span> <span style="font-size:13px;color:var(--green-dim);margin-left:12px">Intel: ×${intelMult}</span></div>`;
 
   // Two columns
@@ -2854,7 +2884,10 @@ function startFix(nodeId, vulnIdx, fixType) {
   const node = R.net.nodes[nodeId];
   const vuln = node.vulns[vulnIdx];
   if (!vuln || vuln.fixed || vuln.fixing) return;
-  if (fixType === 'mitigate' && vuln.mitigated) { addLog('Already mitigated', 'warn'); return; }
+  // Re-mitigation is allowed once erosion has begun; block only while at full strength
+  if (fixType === 'mitigate' && vuln.mitigated && (R.elapsed - (vuln.mitigatedAt || 0)) < MITIGATION_GRACE) {
+    addLog('Mitigation still at full strength', 'warn'); return;
+  }
 
   const ft = FIX_TYPES[fixType];
   if (!ft) return;
@@ -2990,6 +3023,7 @@ function startRun() {
       intel: new Map(),
       pentesters: [],
       stuckTimer: 0,
+      lockedOutTimer: 0, // sustained time with the network secured and no red team presence
       coordination: getSliderValue('rtCoordination'),
     },
     pendingAlerts: [],
@@ -3026,12 +3060,47 @@ function startRun() {
   // Handle insider threat modifier: register pre-compromised node in red team state
   if (net.insiderNode) {
     const ins = net.insiderNode;
+    ins.discovered = true;           // make the insider compromise visible/actionable from the start
+    ins.compromised = true;
     ins.compromiseConfirmed = true;
-    ins.compromisedAt = 0;
+    ins.persistence = true;          // "starts compromised with persistence" — needs Burn & Rebuild
+    ins.compromisedAt = 0.001;       // non-falsy so it counts toward the Response score
     R.redTeam.compromised.add(ins.id);
+    R.redTeam.persistedNodes.add(ins.id);
     R.redTeam.footholds.push(ins.id);
     // Give insider foothold to first pentester
     if (R.redTeam.pentesters.length) R.redTeam.pentesters[0].personalFootholds.add(ins.id);
+    // Keep the discovered counter accurate now that the insider node is revealed
+    R.totalDiscovered = R.net.nodes.filter(n => n.discovered).length;
+  }
+
+  // Zero Day modifier: seed one critical vulnerability with no available remediation.
+  if (activeMods.includes('zeroday_mod')) {
+    // Prefer a discovered inner/critical node so it sits on the likely attack path.
+    let zdPool = net.nodes.filter(n => n.discovered && n.zone >= 3 && !n.shadowIT);
+    if (!zdPool.length) zdPool = net.nodes.filter(n => n.discovered && !n.shadowIT);
+    if (zdPool.length) {
+      const zdNode = pick(zdPool);
+      const zdCat = VULN_CATEGORIES.find(c => c.id === 'zeroday') || VULN_CATEGORIES[0];
+      const zdVuln = {
+        id: 'PUMA-0DAY-' + String(rand(1000, 9999)),
+        name: pick(VULN_NAMES.zeroday),
+        category: zdCat,
+        attackVector: 'Network',
+        severity: Math.round(randf(9.0, 10.0) * 10) / 10,
+        exploitability: randf(0.70, 0.90),
+        fixType: 'mitigate', fixLabel: 'Mitigate', fixEffect: 'mitigate',
+        cost: 0, time: 0, successRate: 1,
+        requiresDowntime: false,
+        fixed: false, mitigated: false, mitigationFactor: 0,
+        fixing: false, fixProgress: 0,
+        revealed: false,
+        fixLocked: false,
+        noFix: true, // zero-day: no remediation available at all
+      };
+      zdNode.vulns.push(zdVuln);
+      R.totalVulns++;
+    }
   }
 
   showScreen('run-screen');
@@ -3096,11 +3165,18 @@ function gameLoop() {
         endRun();
       }
 
-      // Early win: no compromises, no footholds, all pentesters idle, all discovered scanned, 5+ min elapsed
-      if (R.phase !== 'COMPLETE' && R.elapsed >= 300 && R.redTeam.compromised.size === 0 &&
-          R.redTeam.footholds.length === 0 && R.redTeam.pentesters.length > 0 &&
-          R.redTeam.pentesters.every(p => p.state === 'idle') &&
-          R.net.nodes.every(n => !n.discovered || n.scanned)) {
+      // Early win — all operators eliminated (e.g. every pentester incarcerated): no adversary remains
+      if (R.phase !== 'COMPLETE' && R.elapsed >= getHeadStart() && R.redTeam.pentesters.length === 0) {
+        addLog('✓ RED TEAM: All operators eliminated — engagement concluded', 'ok');
+        R.phase = 'COMPLETE';
+        endRun();
+      }
+
+      // Early win — network secured and the red team has been locked out for a sustained window.
+      // Uses a persistent lockedOutTimer (see processRedTeam) rather than a transient pentester
+      // state, which flips back to a new target within a single frame.
+      if (R.phase !== 'COMPLETE' && R.elapsed >= 300 && R.redTeam.pentesters.length > 0 &&
+          (R.redTeam.lockedOutTimer || 0) >= 30) {
         addLog('✓ RED TEAM: Engagement concluded — no viable attack paths', 'ok');
         R.phase = 'COMPLETE';
         endRun();
@@ -3116,6 +3192,9 @@ function gameLoop() {
 
       // Passive intel — slowly reveal detectable vulns on unscanned nodes
       processPassiveIntel(dt * R.clockSpeed);
+
+      // Mitigation erosion warnings
+      processMitigationErosion(dt * R.clockSpeed);
 
       // Budget drip
       processBudgetDrip(dt * R.clockSpeed);
@@ -3476,7 +3555,12 @@ function processFixes(dt) {
             addLog(`✓ ${vuln.fixTypeApplied.toUpperCase()} SUCCESS: ${vuln.name} on ${node.name}`, 'ok');
           } else if (vuln.fixEffect === 'partial') {
             vuln.originalSeverity = vuln.originalSeverity || vuln.severity;
+            const sevBefore = vuln.severity;
             vuln.severity = clamp(vuln.severity - randf(3, 5), 0, 10);
+            // Configure also reduces exploitability in proportion to the severity drop —
+            // a hardened config is genuinely harder to exploit, not just lower-scored.
+            const sevRatio = sevBefore > 0 ? vuln.severity / sevBefore : 0;
+            vuln.exploitability = clamp(vuln.exploitability * (0.4 + 0.6 * sevRatio), 0.01, 0.95);
             vuln.configured = true;
             vuln.fixed = vuln.severity < 0.1;
             if (vuln.fixed) R.totalFixed++;
@@ -3485,6 +3569,8 @@ function processFixes(dt) {
           } else if (vuln.fixEffect === 'mitigate') {
             vuln.mitigated = true;
             vuln.mitigationFactor = randf(0.5, 0.75);
+            vuln.mitigatedAt = R.elapsed;   // erosion clock starts now (see getMitigationFactor)
+            vuln._erosionWarned = false;
             const flavor = getFlavorMsg(MITIGATE_FLAVOR, null, catId);
             addLog(`✓ MITIGATED: ${vuln.name} on ${node.name} — exploitability reduced ${Math.round(vuln.mitigationFactor * 100)}%. ${flavor}`, 'ok');
           }
@@ -3637,8 +3723,9 @@ function processRebuilds(dt) {
       R.redTeam.footholds = R.redTeam.footholds.filter(id => id !== node.id);
       // Re-roll the node: clear all vulns (clean system)
       node.vulns = [];
-      node.scanned = false;
-      node.deepScanned = false;
+      node.rebuilt = true;      // fresh system — never lazily regenerate vulns on it
+      node.scanned = true;      // you just built it; you have full visibility (Tier 2)
+      node.deepScanned = false; // EDR must be redeployed on the new box
       node.scanning = false;
       node.deepScanning = false;
       node.scanProgress = 0;
@@ -3730,6 +3817,24 @@ function processPassiveIntel(dt) {
       R.totalDiscovered++;
       addLog(`⚠ Unknown device detected on network — possible shadow IT: ${node.name}`, 'warn');
       renderAssetList();
+    }
+  }
+}
+
+// Warn once per mitigation when it starts eroding — the teaching moment for "mitigate buys time"
+function processMitigationErosion(dt) {
+  if (!R) return;
+  R._mitTimer = (R._mitTimer || 0) + dt;
+  if (R._mitTimer < 1) return; // throttle to ~1/s
+  R._mitTimer = 0;
+  for (const node of R.net.nodes) {
+    for (const v of node.vulns) {
+      if (v.mitigated && !v.fixed && !v._erosionWarned &&
+          R.elapsed - (v.mitigatedAt || 0) > MITIGATION_GRACE) {
+        v._erosionWarned = true;
+        addLog(`⚠ Mitigation eroding: ${v.name} on ${node.name} — apply a permanent fix or re-mitigate`, 'warn');
+        if (R.selectedNode === node.id) renderDetail();
+      }
     }
   }
 }
@@ -3856,8 +3961,10 @@ function processModifierTimers(dt) {
       R._supplyChainFired = true;
       const depNames = ['log4j-core', 'xz-utils', 'polyfill.io', 'openssl-legacy', 'libcurl-rce', 'node-ipc'];
       const depName = pick(depNames);
-      // Target 3-5 scanned nodes
-      const candidates = R.net.nodes.filter(n => n.discovered && n.scanned && !n.rebuilding);
+      // Target 3-5 discovered nodes — scanned or not. A disclosed dependency backdoor
+      // is public knowledge: scanning more of your network must never make this worse.
+      // Rebuilt nodes are fresh systems and stay clean.
+      const candidates = R.net.nodes.filter(n => n.discovered && !n.rebuilding && !n.rebuilt);
       const count = Math.min(candidates.length, rand(3, 5));
       const targets = [];
       const pool = [...candidates];
@@ -3881,14 +3988,16 @@ function processModifierTimers(dt) {
             exploitability: randf(0.7, 0.95),
             fixType: 'replace',
             fixLabel: 'Replace ' + depName,
-            cost: rand(800, 1500),
+            cost: rand(4000, 8000), // dependency swap under fire is not a bargain-bin fix
             time: rand(20, 35),
             successRate: 0.75,
             requiresDowntime: true,
             fixed: false,
             mitigated: false,
             mitigationFactor: 0,
-            revealed: true, // publicly known
+            fixing: false,
+            fixProgress: 0,
+            revealed: true, // publicly disclosed CVE — visible even on unscanned nodes
             fixLocked: false,
           };
           node.vulns.push(vuln);
@@ -4063,7 +4172,8 @@ function queueDetectionAlert(node, eventType, pentesterId) {
 function rtTryExploit(node, pentester) {
   const rt = R.redTeam;
   // Generate vulns for unscanned nodes so red team has something to exploit
-  if (node.vulns.length === 0) {
+  // (rebuilt clean systems stay empty — see burnAndRebuild)
+  if (node.vulns.length === 0 && !node.rebuilt) {
     node.vulns = generateVulns(node, R.threatLevel, R.net.mods);
     R.totalVulns += node.vulns.length;
   }
@@ -4099,7 +4209,7 @@ function rtTryExploit(node, pentester) {
       chance = vuln.exploitability;
     }
 
-    if (vuln.mitigated) chance *= (1 - vuln.mitigationFactor);
+    if (vuln.mitigated) chance *= (1 - getMitigationFactor(vuln)); // eroded mitigations block less
 
     // Cumulative exploit bonus from strategic compromises
     chance += rt.exploitBonus;
@@ -4214,11 +4324,12 @@ function ptCompromiseNode(pt, node, vulnUsed) {
     screenShake();
   }
 
-  // Choose: persist or pivot
+  // Choose: persist or pivot. Already-persisted nodes (backdoor re-entry) skip straight
+  // to pivoting — no reason to re-plant a backdoor that's already there.
   const strat = NODE_STRATEGY[node.type];
   const isHighValue = node.zone >= 3 || (strat && strat.strategicBuff);
 
-  if (isHighValue) {
+  if (isHighValue && !rt.persistedNodes.has(node.id)) {
     // Establish persistence on high-value targets
     pt.state = 'persisting';
     pt.progress = 0;
@@ -4317,7 +4428,7 @@ function rtPostExploitRecon(node) {
     if (!rt.intel.has(nId)) rt.intel.set(nId, new Set());
     const neighbor = R.net.nodes[nId];
     if (!neighbor) continue;
-    if (neighbor.vulns.length === 0) {
+    if (neighbor.vulns.length === 0 && !neighbor.rebuilt) {
       neighbor.vulns = generateVulns(neighbor, R.threatLevel, R.net.mods);
       R.totalVulns += neighbor.vulns.length;
     }
@@ -4336,19 +4447,31 @@ function ptPickPhysicalTarget(pt) {
   // High-risk: zone >= 3 nodes with physical vulns (incarceration risk)
   const physicalTargets = R.net.nodes.filter(n => {
     if (rt.compromised.has(n.id) || n.rebuilding) return false;
+    if (PHYS_EXEMPT_TYPES.has(n.type)) return false; // cloud assets aren't in the building
     // Wi-Fi APs and IoT are always physically accessible from onsite
     if (n.type === 'wifiap' || n.type === 'iot') return true;
     // Workstations in zones 0-2 are accessible (lobby, offices)
     if (n.type === 'workstation' && n.zone <= 2) return true;
     // High-value targets with physical security vulns
-    if (n.zone >= 3 && n.vulns.some(v => v.category.id === 'physical_security' && !v.fixed)) return true;
+    if (n.zone >= 3 && n.vulns.some(v => v.category.id === 'physical' && !v.fixed)) return true;
     return false;
   });
   if (!physicalTargets.length) return null;
   // Prefer low-risk targets first, then high-risk
-  const lowRisk = physicalTargets.filter(n => n.zone < 3);
+  const lowRisk = physicalTargets.filter(n => PHYS_LOW_RISK_TYPES.has(n.type));
   const pool = lowRisk.length ? lowRisk : physicalTargets;
   return pick(pool);
+}
+
+// Footholds this pentester can leverage, filtered by team coordination:
+// 0 = only personal footholds, 1.0 = all team footholds, in between = probabilistic
+function ptAvailableFootholds(pt) {
+  const rt = R.redTeam;
+  const coord = rt.coordination || 0;
+  if (coord >= 1.0) return [...rt.footholds];
+  if (coord <= 0) return rt.footholds.filter(fId => pt.personalFootholds.has(fId));
+  // Personal footholds always available; team footholds shared with probability = coord
+  return rt.footholds.filter(fId => pt.personalFootholds.has(fId) || Math.random() < coord);
 }
 
 function ptPickTarget(pt) {
@@ -4356,19 +4479,7 @@ function ptPickTarget(pt) {
   const isViable = n => n && !rt.compromised.has(n.id) && !n.rebuilding;
 
   // Pentester-local targeting: based on what THIS pentester has access to
-  // Coordination controls which footholds a pentester can use:
-  // 0 = only personal footholds, 1.0 = all team footholds, in between = probabilistic
-  const coord = rt.coordination || 0;
-  let availableFootholds;
-  if (coord >= 1.0) {
-    availableFootholds = [...rt.footholds];
-  } else if (coord <= 0) {
-    availableFootholds = rt.footholds.filter(fId => pt.personalFootholds.has(fId));
-  } else {
-    // Include personal footholds always, team footholds with probability = coord
-    availableFootholds = rt.footholds.filter(fId =>
-      pt.personalFootholds.has(fId) || Math.random() < coord);
-  }
+  const availableFootholds = ptAvailableFootholds(pt);
 
   if (!availableFootholds.length) {
     // No footholds: target perimeter (zone 0-1)
@@ -4482,9 +4593,11 @@ function updatePentester(pt, dt) {
       if (!target) { ptReset(pt, 3); return; }
 
       // Physical security vulns on target affect success
-      const physVulns = target.vulns.filter(v => v.category.id === 'physical_security' && !v.fixed);
+      const physVulns = target.vulns.filter(v => v.category.id === 'physical' && !v.fixed);
       const physVulnBonus = physVulns.length * 0.15;
-      const isHighRisk = target.zone >= 3; // server rooms, data centers
+      // High risk = badge-controlled infrastructure (server rooms, data centers) —
+      // classified by type, so a zone-5 IoT sensor is still a low-risk grab
+      const isHighRisk = target.zone >= 3 && !PHYS_LOW_RISK_TYPES.has(target.type);
       const baseChance = isHighRisk ? 0.40 : 0.65;
       const chance = Math.min(0.85, baseChance + physVulnBonus);
 
@@ -4492,8 +4605,10 @@ function updatePentester(pt, dt) {
         // SUCCESS: total control, instant persistence
         addLog(`🔴 PHYSICAL BREACH: ${target.name} — operator gained direct access!`, 'crit');
         screenShake();
-        const fakeVuln = { name: 'physical access (USB/console)', bruteForce: false, revealed: true, category: { id: 'physical_security' }, severity: 10, exploitability: 1 };
-        target.vulns.push(fakeVuln);
+        // The physical intrusion is the compromise event itself — not a lingering weakness.
+        // Pass a lightweight descriptor (only .name and .bruteForce are read) instead of
+        // pushing a malformed vuln that would render broken and poison the score.
+        const fakeVuln = { name: 'physical access (USB/console)', bruteForce: false };
         ptCompromiseNode(pt, target, fakeVuln);
         // Force persistence immediately for physical access
         if (pt.state === 'persisting' || pt.state === 'pivoting') {
@@ -4505,7 +4620,7 @@ function updatePentester(pt, dt) {
         // FAILED
         if (isHighRisk) {
           // Roll for incarceration
-          const physSecFixed = target.vulns.some(v => v.category.id === 'physical_security' && v.fixed);
+          const physSecFixed = target.vulns.some(v => v.category.id === 'physical' && v.fixed);
           const catchChance = physSecFixed ? 0.75 : 0.60;
           if (Math.random() < catchChance) {
             // CAUGHT — pentester permanently removed
@@ -4533,6 +4648,22 @@ function updatePentester(pt, dt) {
     return;
   }
 
+  // REENTERING: using a planted backdoor to re-compromise a reclaimed node.
+  // Bypasses exploit rolls and hardening entirely — persistence survives eviction.
+  if (pt.state === 'reentering') {
+    pt.progress += dt;
+    const target = R.net.nodes[pt.targetNode];
+    // Backdoor burned (rebuild) or node already back under red team control — abort
+    if (!target || !target.persistence || target.rebuilding || rt.compromised.has(pt.targetNode)) {
+      ptReset(pt, randf(2, 4));
+      return;
+    }
+    if (pt.progress >= pt.totalTime) {
+      ptCompromiseNode(pt, target, { name: 'persistence backdoor', bruteForce: false });
+    }
+    return;
+  }
+
   // IDLE: pick a target
   if (pt.state === 'idle') {
     // Onsite pentester: try physical targets first
@@ -4547,6 +4678,22 @@ function updatePentester(pt, dt) {
         return;
       }
       // No physical targets — fall through to normal targeting (can still do remote from onsite)
+    }
+    // Persistence re-entry: a planted backdoor lets the red team re-compromise a reclaimed
+    // node in seconds — no exploit roll, hardening bypassed. This is why Burn & Rebuild
+    // is the only true answer to persistence. Brief pause after IR gives the defender a beat.
+    const reentryNodes = ptAvailableFootholds(pt)
+      .filter(fId => rt.persistedNodes.has(fId) && !rt.compromised.has(fId))
+      .map(fId => R.net.nodes[fId])
+      .filter(n => n && !n.rebuilding && (!n.reclaimedAt || R.elapsed - n.reclaimedAt >= 8));
+    if (reentryNodes.length && Math.random() < 0.6) {
+      const target = pick(reentryNodes);
+      pt.targetNode = target.id;
+      pt.state = 'reentering';
+      pt.progress = 0;
+      pt.totalTime = randf(4, 7) * pt.speedMult;
+      queueDetectionAlert(target, 'scanning', pt.id);
+      return;
     }
     const target = ptPickTarget(pt);
     if (!target) return; // no viable targets
@@ -4568,7 +4715,7 @@ function updatePentester(pt, dt) {
       if (!target || target.rebuilding) { ptReset(pt); return; }
 
       // Build intel on the target (same as current RECON logic)
-      if (target.vulns.length === 0) {
+      if (target.vulns.length === 0 && !target.rebuilt) {
         target.vulns = generateVulns(target, R.threatLevel, R.net.mods);
         R.totalVulns += target.vulns.length;
       }
@@ -4802,6 +4949,17 @@ function processRedTeam(dt) {
     rt.stuckTimer = Math.max(0, rt.stuckTimer - dt * 0.5); // slowly decay
   }
 
+  // Track "locked out" time for the early-win check: the network is fully secured and the
+  // red team has no active presence (no compromises, footholds, onsite/traveling operators).
+  const noRtPresence = rt.compromised.size === 0 && !hasFootholds && !anyOnsite &&
+    !rt.pentesters.some(p => p.state === 'traveling' || p.state === 'physical');
+  const allDiscoveredScanned = R.net.nodes.every(n => !n.discovered || n.scanned);
+  if (noRtPresence && allDiscoveredScanned) {
+    rt.lockedOutTimer = (rt.lockedOutTimer || 0) + dt;
+  } else {
+    rt.lockedOutTimer = 0;
+  }
+
   // Physical intrusion: send a pentester onsite when stuck long enough
   // Remote Attacker modifier: no physical intrusion possible
   if (rt.stuckTimer > 45 && !R.activeMods.includes('remote_attacker')) {
@@ -4868,10 +5026,11 @@ function endRun() {
   const containment = clamp((1 - stillCompromised / totalNodes) * 100, 0, 100);
 
   // ── POSTURE (25%) — severity-weighted % of known vulns fixed or mitigated ──
+  // Mitigation credit uses current (possibly eroded) strength — stopgaps age out.
   const knownSevTotal = knownVulns.reduce((s, v) => s + v.severity, 0);
   const addressedSev = knownVulns.reduce((s, v) => {
     if (v.fixed) return s + v.severity;
-    if (v.mitigated) return s + v.severity * v.mitigationFactor;
+    if (v.mitigated) return s + v.severity * getMitigationFactor(v);
     return s;
   }, 0);
   const posture = knownSevTotal > 0 ? clamp((addressedSev / knownSevTotal) * 100, 0, 100) : 100;
@@ -4890,13 +5049,28 @@ function endRun() {
     response = clamp(100 - (avgResponse / R.elapsed) * 100, 0, 100);
   }
 
-  // ── EFFICIENCY (15%) — risk reduced per dollar spent ──
+  // ── EFFICIENCY (15%) — share of known risk addressed vs share of budget consumed ──
+  // riskRatio: what fraction of the addressable (known) risk did you eliminate?
+  // spendRatio: what fraction of every dollar you received did you burn?
+  // riskRatio/spendRatio = 1.0 means "addressed everything using everything" → scored 70.
+  // Doing the same job under budget scores higher; the old absolute formula capped
+  // realistic runs at ~10-30 and made 95+ totals (S grade) mathematically impossible.
   const riskReduced = knownVulns.reduce((s, v) => {
     if (v.fixed) return s + v.severity * v.exploitability;
-    if (v.mitigated) return s + v.severity * v.exploitability * v.mitigationFactor;
+    if (v.mitigated) return s + v.severity * v.exploitability * getMitigationFactor(v);
     return s;
   }, 0);
-  const efficiency = R.budgetSpent > 0 ? clamp((riskReduced / (R.budgetSpent / 1000)) * 10, 0, 100) : 0;
+  const addressableRisk = knownVulns.reduce((s, v) => s + v.severity * v.exploitability, 0);
+  const riskRatio = addressableRisk > 0 ? riskReduced / addressableRisk : 1;
+  const totalReceived = Math.max(1, R.budget + R.budgetSpent); // start budget + all drips
+  const spendRatio = clamp(R.budgetSpent / totalReceived, 0.05, 1);
+  let efficiency;
+  if (R.budgetSpent <= 0) {
+    // Spent nothing: perfectly efficient if anything got addressed (free playbook fixes), else idle
+    efficiency = (riskRatio > 0 || addressableRisk === 0) ? 100 : 0;
+  } else {
+    efficiency = clamp((riskRatio / spendRatio) * 70, 0, 100);
+  }
 
   // ── FINAL SCORE ──
   const rawScore = Math.round(
@@ -4904,17 +5078,17 @@ function endRun() {
     response * 0.15 + efficiency * 0.15
   );
   let finalScore;
-  if (criticalBreached && R.diffScore < 4) {
-    // Low difficulty: heavy penalty instead of auto-F — let new players learn
+  if (criticalBreached && R.diffScore < HARD_GATE_DIFF) {
+    // At/below Normal: heavy penalty instead of auto-F — let players learn
     finalScore = Math.max(0, rawScore - 30);
   } else {
     finalScore = criticalBreached ? Math.min(rawScore, 39) : rawScore;
   }
 
   let grade, label;
-  if (criticalBreached && R.diffScore >= 4) {
+  if (criticalBreached && R.diffScore >= HARD_GATE_DIFF) {
     grade = 'F'; label = 'CRITICAL BREACH — AUTOMATIC FAILURE';
-  } else if (finalScore >= 95 && R.diffScore >= 7) {
+  } else if (finalScore >= 95 && R.diffScore >= HARD_GATE_DIFF) {
     grade = 'S'; label = 'EXCEPTIONAL POSTURE';
   } else if (finalScore >= 85) {
     grade = 'A'; label = 'STRONG DEFENSE';
@@ -4928,8 +5102,10 @@ function endRun() {
     grade = 'F'; label = 'OPERATION FAILED';
   }
 
-  // Intel earned
-  let intel = (grade === 'F' && R.diffScore >= 4) ? 0 : Math.floor(finalScore * (R.diffScore / 4.3));
+  // Intel earned — anchored to the Normal preset (1.0× there). Failed runs still earn
+  // a 25% consolation so a hard 15-minute engagement is never a total zero.
+  let intel = Math.floor(finalScore * (R.diffScore / NORMAL_DIFF_ANCHOR));
+  if (grade === 'F') intel = Math.floor(intel * 0.25);
 
   const coverage = clamp((discovered / totalNodes) * 100, 0, 100);
 
@@ -4986,7 +5162,7 @@ function checkAchievements(data) {
   const critVulns = R.net.nodes.flatMap(n => n.vulns.filter(v => v.severity >= 9 && v.revealed));
   if (critVulns.length > 0 && critVulns.every(v => v.fixed)) unlock('crit_cond');
   if ((data.diffScore || data.threatLevel) >= 8 && data.grade !== 'F') unlock('odds');
-  if (save.intel >= 600) unlock('completionist'); // enough intel to unlock all templates
+  if (save.intel >= Math.max(...NETWORK_TEMPLATES.map(t => t.intelReq))) unlock('completionist'); // all templates unlocked
 }
 
 
@@ -4999,7 +5175,7 @@ function renderResults(d) {
 
   // Build label with detail line
   let labelText = d.label;
-  if (d.breaches > 0 && (d.diffScore || d.threatLevel) >= 4) labelText += ' \u2014 AUTOMATIC FAILURE';
+  if (d.breaches > 0 && (d.diffScore || d.threatLevel) >= HARD_GATE_DIFF) labelText += ' \u2014 AUTOMATIC FAILURE';
   else if (d.breaches > 0) labelText += ' \u2014 Critical Breach (Heavy Penalty)';
   else if (d.noFootholds) labelText += ' \u2014 No footholds established';
   else if (d.stillCompromised === 0 && d.compromisedCount > 0) labelText += ' \u2014 All compromises reclaimed';
@@ -5072,7 +5248,7 @@ function renderResults(d) {
   if (d.posture < 30) tips.push('Most vulnerabilities were left unaddressed. Prioritize high-severity vulns on critical-path nodes.');
   if (d.assessment < 50) tips.push('Many vulnerabilities were never discovered. Scan more nodes, especially closer to critical assets.');
   if (d.response < 50 && d.compromisedCount > 0) tips.push('Incident response was slow. Investigate anomalies quickly and keep an analyst available for emergencies.');
-  if (d.efficiency < 20 && d.budgetSpent > 20000) tips.push('Budget was spent inefficiently. Mitigate or configure before expensive patches or replacements.');
+  if (d.efficiency < 35 && d.budgetSpent > 20000) tips.push('Budget was spent inefficiently. Mitigate or configure before expensive patches or replacements.');
   if (d.compromisedCount === 0 && d.grade !== 'F') tips.push('Excellent defense! Consider increasing the threat level for a greater challenge.');
 
   if (tips.length > 0) {
@@ -5407,7 +5583,9 @@ function renderDetail() {
       if (v.fixed) return; // Fixed vulns removed from list
       if (!node.scanned && !v.revealed) return;
       const sl = sevLabel(v.severity);
-      const statusText = v.mitigated ? ' ◐ MITIGATED' : v.fixing ? ' ⏳ FIXING...' : v.lastFixFailed ? ' <span style="color:var(--red)">✗ FIX FAILED</span>' : v.configured ? ' <span style="color:var(--amber)">▼ REDUCED</span>' : '';
+      const mitPct = v.mitigated ? Math.round(getMitigationFactor(v) * 100) : 0;
+      const mitEroding = v.mitigated && mitPct < Math.round(v.mitigationFactor * 100);
+      const statusText = v.mitigated ? ` <span style="${mitEroding ? 'color:var(--amber)' : ''}">◐ MITIGATED ${mitPct}%${mitEroding ? ' ▼' : ''}</span>` : v.fixing ? ' ⏳ FIXING...' : v.lastFixFailed ? ' <span style="color:var(--red)">✗ FIX FAILED</span>' : v.configured ? ' <span style="color:var(--amber)">▼ REDUCED</span>' : '';
       const fixedClass = v.lastFixFailed ? ' vuln-failed' : v.configured ? ' vuln-configured' : '';
       let sevDisplay;
       if (v.configured && v.originalSeverity) {
@@ -5433,26 +5611,33 @@ function renderDetail() {
       if (!v.fixed && !v.fixing) {
         html += `<div class="vuln-details">`;
         if (showExpl) {
-          const effectiveExpl = v.mitigated ? v.exploitability * (1 - v.mitigationFactor) : v.exploitability;
+          const effectiveExpl = v.mitigated ? v.exploitability * (1 - getMitigationFactor(v)) : v.exploitability;
           html += `<div class="detail-row"><span class="detail-label">Exploitability</span><span class="detail-value">${(effectiveExpl * 100).toFixed(0)}%${v.mitigated ? ' (mitigated)' : ''}</span></div>`;
         }
+        if (v.noFix) {
+          html += `<div style="font-size:11px;color:var(--red);padding:4px 0">⚠ Zero-day — no remediation available yet</div></div>`;
+        } else {
         html += `<div class="fix-buttons">`;
 
         // Fixed order: mitigate > configure > patch > replace (least to most effective)
         const fixOrder = ['mitigate', 'configure', 'patch', 'replace'];
         const isPartiallyFixed = v.mitigated || v.configured;
-        // Available: category's fix types + patch/replace if partially fixed
+        // Available: category's fix types + patch/replace if partially fixed.
+        // Mitigate is ALWAYS available — it's the universal emergency stopgap (a WAF rule,
+        // an ACL) and the only remaining option on governance-locked vulns. It erodes.
         const available = new Set(v.category.fixTypes);
+        available.add('mitigate');
         if (isPartiallyFixed) { available.add('patch'); available.add('replace'); }
         const FIX_TOOLTIPS = {
-          mitigate: `Mitigate: Reduces exploitability by 50-75%. Always succeeds. Does not fix the root cause — the vulnerability remains, but is harder to exploit. Use when no patch is available (zero-days) or budget is tight.`,
-          configure: `Configure: Reduces severity by 3-5 points (e.g. Critical → Medium). Fast and cheap, 85-100% success rate. No downtime. May be reverted by operations. Can upgrade to a full Patch or Replace later.`,
+          mitigate: `Mitigate: Reduces exploitability by 50-75%. Always succeeds. Does not fix the root cause — and effectiveness ERODES after ~1 minute, decaying to about a third of its strength over the next 4. Re-mitigate to refresh, or upgrade to a permanent fix. Use when no patch is available (zero-days) or budget is tight.`,
+          configure: `Configure: Reduces severity by 3-5 points (e.g. Critical → Medium) and lowers exploitability proportionally, making the vuln meaningfully harder to exploit. Fast and cheap, 85-100% success rate. No downtime. May be reverted by operations. Can upgrade to a full Patch or Replace later.`,
           patch: `Patch: Fully removes the vulnerability. Moderate cost, 70-95% success rate. May cause downtime. Risk of failure from denied change windows, broken dependencies, or operational pushback.`,
           replace: `Replace: Replaces the affected component entirely. Expensive and slow, but 95-100% success rate. Causes downtime. Required for end-of-life systems with no patches available.`,
         };
         for (const ft of fixOrder) {
           if (!available.has(ft)) continue;
-          if (ft === 'mitigate' && v.mitigated) continue;
+          // Mitigate hidden while at full strength; reappears as Re-Mitigate once eroding
+          if (ft === 'mitigate' && v.mitigated && (R.elapsed - (v.mitigatedAt || 0)) < MITIGATION_GRACE) continue;
           if (ft === 'configure' && v.configured) continue;
           // Governance lock: only mitigate allowed
           if (v.fixLocked && ft !== 'mitigate') continue;
@@ -5464,7 +5649,7 @@ function renderDetail() {
             ? `$${(minCost/1000).toFixed(0)}K`
             : `$${(minCost/1000).toFixed(0)}-${(maxCost/1000).toFixed(0)}K`;
           const isRework = v.lastFixFailed && v.fixTypeApplied === ft;
-          const label = isRework ? `Rework ${ftInfo.label}` : ftInfo.label;
+          const label = isRework ? `Rework ${ftInfo.label}` : (ft === 'mitigate' && v.mitigated) ? 'Re-Mitigate' : ftInfo.label;
           let tooltip = FIX_TOOLTIPS[ft] || '';
           if (isRework) tooltip = `Rework: Retry the failed ${ftInfo.label.toLowerCase()} at 1.5x cost. ` + tooltip;
           if (costMult > 1 && !isRework) tooltip += ` Cost is 1.5x because you are upgrading from a partial fix.`;
@@ -5477,6 +5662,7 @@ function renderDetail() {
           </button>`;
         }
         html += `</div></div>`;
+        }
       }
       html += '</div>';
     });

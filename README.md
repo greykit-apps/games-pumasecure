@@ -57,7 +57,7 @@ Vuln scanning a silently-compromised node reveals an anomaly. EDR deployment aut
 
 | Action | Speed | Effect | Risk |
 |--------|-------|--------|------|
-| **Mitigate** | Fast | Reduces exploitability 50-75% | Doesn't fix the root cause |
+| **Mitigate** | Fast | Reduces exploitability 50-75%, erodes over ~5 min | Doesn't fix the root cause; must be refreshed or upgraded |
 | **Configure** | Fast | Reduces severity 3-5 points | Configs get reverted, deployed to wrong host |
 | **Patch** | Slow | Full fix | 70-95% success; change windows denied, dependencies break |
 | **Replace** | Very slow | Near-guaranteed fix | Migrations crash, license keys reject |
@@ -95,7 +95,7 @@ Each modifier has three positions: **OFF**, **?** (random chance), and **ON**. F
 
 ### Scoring
 
-Any critical asset (zone 4) breached at difficulty 4+ = automatic **F**. Otherwise you're graded on:
+Any critical asset (zone 4) breached at difficulty 6+ = automatic **F** (heavy penalty below that). Otherwise you're graded on:
 
 | Axis | Weight |
 |------|--------|
@@ -105,7 +105,7 @@ Any critical asset (zone 4) breached at difficulty 4+ = automatic **F**. Otherwi
 | Incident Response | 15% |
 | Efficiency | 15% |
 
-Grades: **S** (95+, difficulty 5+ only) / **A** (85+) / **B** (70+) / **C** (55+) / **D** (40+) / **F**
+Grades: **S** (95+, difficulty 6+ only) / **A** (85+) / **B** (70+) / **C** (55+) / **D** (40+) / **F**
 
 **Early win**: If you secure all discovered nodes, eliminate all compromises, and the red team has no footholds after 5 minutes, the engagement ends early.
 
@@ -118,13 +118,13 @@ Earn **Intel** based on your grade and difficulty score. Higher difficulty = hig
 | Template | Intel Required |
 |----------|---------------|
 | Small Office | 0 (free) |
-| Enterprise | 25 |
-| Manufacturing | 50 |
-| University | 100 |
-| Hospital | 150 |
-| Startup | 250 |
-| Fintech | 400 |
-| Government | 600 |
+| Enterprise | 40 |
+| Manufacturing | 100 |
+| University | 180 |
+| Hospital | 280 |
+| Startup | 420 |
+| Fintech | 600 |
+| Government | 850 |
 
 ## Controls
 

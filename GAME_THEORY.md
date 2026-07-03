@@ -40,7 +40,7 @@ Four fix types sit on a spectrum from fast-and-fragile to slow-and-permanent:
 
 | Action | Time | Cost | Success Rate | Effect |
 |--------|------|------|-------------|--------|
-| **Mitigate** | 5-15s | $1-4K | 100% | Reduces exploitability 50-75%, doesn't fix the root cause |
+| **Mitigate** | 5-15s | $1-4K | 100% | Reduces exploitability 50-75%; erodes to ~35% strength over ~5 min |
 | **Configure** | 3-10s | $0.5-3K | 85-100% | Reduces severity, may be reverted by operations |
 | **Patch** | 8-30s | $2-15K | 70-95% | Full fix, but change windows get denied, dependencies break |
 | **Replace** | 15-30s | $8-15K | 95-100% | Near-guaranteed fix, but migrations crash, licenses reject |
@@ -271,7 +271,7 @@ Random modifiers are weighted by impact — powerful modifiers (Grizzled Veteran
 
 ### Difficulty Score and Intel
 
-Every configuration produces a difficulty score (1.0-10.0). This score determines the **Intel multiplier** for that run. Normal difficulty (~4.3) yields 1.0x intel. Higher difficulty yields more; lower yields less.
+Every configuration produces a difficulty score (1.0-10.0). This score determines the **Intel multiplier** for that run. The multiplier is anchored to the Normal preset — Normal always yields exactly 1.0x intel, and the anchor is computed from the preset itself so retuning presets keeps it honest. Higher difficulty yields more; lower yields less. Failed runs earn a 25% consolation rather than zero.
 
 Five presets (Tutorial through Nightmare) configure everything, or players can use Custom to dial in exact parameters.
 
@@ -289,7 +289,7 @@ The final score reflects five dimensions of security program effectiveness:
 | **Incident Response** | 15% | How quickly were compromises detected and remediated? |
 | **Efficiency** | 15% | How much risk was reduced per dollar spent? |
 
-**Hard gate (difficulty 4+)**: Any critical asset (zone 4) breached = automatic **F**, score capped at 39. At lower difficulties, a critical breach incurs a -30 penalty but isn't an automatic failure.
+**Hard gate (difficulty 6+)**: Any critical asset (zone 4) breached = automatic **F**, score capped at 39. At lower difficulties (including the Normal preset), a critical breach incurs a -30 penalty but isn't an automatic failure.
 
 **Early win**: If the player secures all discovered nodes, eliminates all compromises, and the red team has no footholds after 5 minutes, the engagement ends early. The response score uses actual elapsed time, rewarding decisive play.
 
@@ -297,7 +297,7 @@ The final score reflects five dimensions of security program effectiveness:
 
 | Grade | Score | Requirement |
 |-------|-------|-------------|
-| **S** | 95+ | Difficulty 5+ |
+| **S** | 95+ | Difficulty 6+ |
 | **A** | 85+ | Strong defense |
 | **B** | 70+ | Functional defense |
 | **C** | 55+ | Needs improvement |
@@ -313,13 +313,13 @@ Intel earned per run is a **lifetime career score** that unlocks new network tem
 | Template | Intel Required |
 |----------|---------------|
 | Small Office | 0 (free) |
-| Enterprise | 25 |
-| Manufacturing | 50 |
-| University | 100 |
-| Hospital | 150 |
-| Startup | 250 |
-| Fintech | 400 |
-| Government | 600 |
+| Enterprise | 40 |
+| Manufacturing | 100 |
+| University | 180 |
+| Hospital | 280 |
+| Startup | 420 |
+| Fintech | 600 |
+| Government | 850 |
 
 Higher difficulty yields more intel, incentivizing players to increase the challenge as they improve. Each template provides a different network topology and asset mix, requiring different strategies.
 
