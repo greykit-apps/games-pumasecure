@@ -74,7 +74,7 @@ The red team isn't a difficulty slider or a random event generator. It's modeled
 
 The red team has **pentesters** — independent operators that work in parallel. Their count is controlled by the Red Team Size slider (1-5). Each pentester is an autonomous agent with their own target, progress timer, and state. Multiple pentesters can attack different nodes simultaneously, creating multi-front pressure that a single defender must triage.
 
-Pentesters can also **double up** on high-value targets (zone 3+), halving the time to establish persistence on critical infrastructure.
+Pentesters can also **double up** on high-value targets (zone 3+), halving the time to establish persistence on critical infrastructure. When the primary finishes, the helper stands down — a doubled attempt completes once.
 
 ### Red Team Coordination
 
@@ -95,14 +95,14 @@ This creates a meaningful difficulty axis: at low coordination, eliminating one 
 The red team doesn't instantly compromise nodes. Each attack follows a realistic chain:
 
 ```
-IDLE -> SCANNING (5-12s) -> EXPLOITING (4-10s) -> COMPROMISED -> PERSISTING (15-30s) or PIVOTING (3-8s)
+IDLE -> SCANNING (5-12s) -> EXPLOITING (4-10s) -> COMPROMISED -> PERSISTING (20-40s) or PIVOTING (3-8s)
 ```
 
 **Scanning** probes the target for exploitable vulnerabilities. The pentester learns vulnerability categories on the target, building intelligence for the exploit attempt.
 
 **Exploiting** attempts to leverage a known vulnerability. Success depends on the vulnerability's exploitability, the node's defensive posture (hardening, EDR deployment, patching), and accumulated strategic buffs.
 
-**Persisting** establishes a durable foothold on high-value targets. This takes significant time (15-30s), during which the defender can race to interrupt via incident response. Once persistence is established, the foothold survives eviction — the red team can re-enter without re-exploiting.
+**Persisting** establishes a durable foothold on high-value targets. This takes significant time (20-40s, halved if a second pentester doubles up), during which the defender can race to interrupt via incident response. Once persistence is established, the foothold survives eviction — the red team can re-enter without re-exploiting.
 
 **Pivoting** is a quick lateral move through low-value targets (IoT, printers, workstations). It's fast but fragile — if the source node is reclaimed, the pivot chain breaks.
 
@@ -132,9 +132,9 @@ The red team has no global phase system tied to a clock. Instead, each pentester
 - **Deep footholds**: Aggressively target critical assets (zone 4), increased exploit bonuses
 - **Locked out**: Regroup and re-target the perimeter — the red team never gives up
 
-The only clock-tied element is a configurable **head start** (1-5 minutes) before pentesters activate, giving the player time to scan and begin remediation.
+The only clock-tied element is a configurable **head start** (1-5 minutes) before pentesters attack. They are not idle during it: they probe the perimeter and build intel on what it runs, and a player who has scanned those nodes sees the probes (specific alerts with EDR, vague zone alerts without). The head start buys time to scan and begin remediation, not silence.
 
-If the red team is completely locked out (no viable targets for 45+ seconds), they escalate to physical intrusion.
+If the red team is completely locked out (no footholds for 45+ seconds), they escalate to physical intrusion.
 
 ---
 
@@ -149,7 +149,7 @@ Detection quality depends entirely on the node's security posture:
 | Tier | Condition | Scanning Alerts | Compromise Visibility |
 |------|-----------|----------------|----------------------|
 | **Tier 1** | EDR deployed | Immediate, specific ("Scanning detected on FW-01") | Instant red flag, IR available immediately |
-| **Tier 2** | Vuln scanned (no EDR) | Delayed (5-10s), vague ("Unusual traffic in DMZ zone") | Amber anomaly indicator — must investigate to confirm |
+| **Tier 2** | Vuln scanned (no EDR) | Delayed (3-6s), vague ("Unusual traffic in DMZ zone") | Amber anomaly indicator — must investigate to confirm |
 | **Tier 3** | Unscanned or missing monitoring | None | Silent — player is completely blind |
 
 A node with an unfixed "Missing Monitoring" vulnerability behaves as Tier 3 regardless of scan state. This makes monitoring gaps a gameplay-critical vulnerability — fixing the RCE is important, but if you can't see the attack, the RCE fix might come too late.
@@ -158,7 +158,7 @@ A node with an unfixed "Missing Monitoring" vulnerability behaves as Tier 3 rega
 
 When a Tier 2 node is compromised, the player doesn't see a breach — they see an **anomaly**. The node glows amber. Something is wrong, but what?
 
-The player must assign an analyst to **investigate the anomaly** (5-10s). The investigation either confirms a compromise (enabling full incident response) or dismisses it as a false positive. This models the real-world friction of alert triage — every anomaly costs attention, and not every alert is real.
+The player must assign an analyst to **investigate the anomaly** (4-8s). The investigation either confirms a compromise (enabling full incident response) or dismisses it as a false positive. Failed attacks against a Tier 2 node leave traces that look like a breach about a third of the time, so roughly a third of anomalies are noise. This models the real-world friction of alert triage — every anomaly costs attention, and not every alert is real.
 
 ### Scanning Reveals Hidden Compromises
 
@@ -168,11 +168,11 @@ If a node was silently compromised (Tier 3) and the player later scans it, the s
 
 ## Incident Response: The Race
 
-When a compromise is confirmed, the player can assign an analyst to incident response (10-20s). But IR isn't a guaranteed win — it's a **race against the pentester's current activity**.
+When a compromise is confirmed, the player can assign an analyst to incident response (10-20s, or 8-14s on a node with EDR — telemetry shows exactly what happened). But IR isn't a guaranteed win — it's a **race against the pentester's current activity**.
 
 If the pentester is establishing persistence:
 - **IR wins first**: Attacker evicted, node hardened for 4 minutes, pentester reassigned
-- **Persistence wins first**: Attacker has a durable foothold. IR still evicts the pentester, but the persistence marker remains — the red team can re-enter in 5 seconds without re-exploiting
+- **Persistence wins first**: Attacker has a durable foothold. IR still evicts the pentester, and forensics reveals the backdoor — but it remains. About 20 seconds after IR the red team can re-enter through it in 6-10 seconds, with no exploit roll and hardening bypassed. That window is the defender's chance to start a Burn & Rebuild
 
 If the pentester is pivoting:
 - **IR wins first**: Pivot fails, downstream targets safe, pentester reassigned
@@ -199,8 +199,11 @@ When the red team is locked out of the network (perimeter fully patched, no foot
 
 The pentester arrives at the physical location (10-15s travel time). From the coffee shop, they can:
 - Do everything they could do remotely (scan, exploit perimeter)
-- **Plus** directly attack Wi-Fi APs and wireless workstations
+- **Plus** directly attack Wi-Fi APs, IoT devices and unattended workstations
 - Wi-Fi attacks carry **no special penalty** if they fail — it's low-risk reconnaissance
+- Defenses still count: a hardened node is never targeted, and EDR or a fully patched box cuts the grab chance sharply
+
+A visit is a handful of attempts (four), then the operator leaves. If the team gets stuck again later, someone can be sent back.
 
 This models the reality that physical proximity opens entirely new attack surfaces. A locked-down firewall means nothing if the Wi-Fi AP in the lobby is running factory firmware.
 
@@ -211,8 +214,8 @@ From onsite, the pentester may attempt direct physical access to a system:
 **Low-risk targets** (Wi-Fi APs, unattended workstations, IoT devices): No incarceration risk. Normal physical attack vector. Failed attempt means trying again later.
 
 **High-risk targets** (server rooms, data centers — zone 3+): Cameras, mantraps, security guards. Success (40-70%) means total control — USB-jack, direct console access, instant persistence. Failure means a roll for detection:
-- If physical security vulnerabilities are **unfixed**: 60% chance the pentester is caught
-- If physical security is **patched**: 75% chance of capture
+- If physical security vulnerabilities are **unaddressed**: 60% chance the pentester is caught
+- If physical security has been **mitigated** (the category has no patch): 75% chance of capture
 - **Caught = permanently removed** from the engagement
 
 ### Physical Access Requirements
@@ -248,7 +251,7 @@ Each has three positions: OFF / ? (random) / ON.
 | MSSP Monitoring | No "missing monitoring" vulnerabilities |
 | Remote Attacker | No physical vulns, no onsite attacks |
 | Grizzled IT Veteran | Fixes never fail |
-| Strong IAM | Suppress brute force / credential vulns |
+| Strong IAM | No brute force, and no default-credential vulns are generated |
 | Threat Intel Feed | Reveals the current target of one pentester |
 | Network Mapper | Zone outlines visible on the map at start |
 | Passive Recon | Start with 20% more assets pre-discovered |
@@ -261,9 +264,9 @@ Each has three positions: OFF / ? (random) / ON.
 | Government Oversight | Fix times 1.5x longer (paperwork) |
 | Governance Requirements | 30% of vulns can only be mitigated |
 | Insider Threat | One node starts compromised with persistence |
-| Pandemic Protocol | One analyst goes AFK periodically |
+| Pandemic Protocol | An idle analyst steps away for 15-30s every 1-2 minutes |
 | Legacy Env | 30% of nodes get legacy flag, boosting vuln severity |
-| Zero Day | One critical vuln has no available fix |
+| Zero Day | One critical vuln has no patch — it can only be mitigated, and mitigations erode |
 | Shadow IT | 2-3 unmanaged devices appear mid-game — red team discovers them first |
 | Supply Chain | Backdoored dependency spawns same critical vuln on 3-5 nodes simultaneously |
 
@@ -273,7 +276,7 @@ Random modifiers are weighted by impact — powerful modifiers (Grizzled Veteran
 
 Every configuration produces a difficulty score (1.0-10.0). This score determines the **Intel multiplier** for that run. The multiplier is anchored to the Normal preset — Normal always yields exactly 1.0x intel, and the anchor is computed from the preset itself so retuning presets keeps it honest. Higher difficulty yields more; lower yields less. Failed runs earn a 25% consolation rather than zero.
 
-Five presets (Tutorial through Nightmare) configure everything, or players can use Custom to dial in exact parameters.
+Five presets (Tutorial through Nightmare) configure everything, or players can use Custom to dial in exact parameters. The presets were tuned against a headless simulation of the game: red team size is by far the strongest lever (each extra pentester roughly doubles pressure), so the ladder steps it 1 → 1 → 1 → 2 → 4 and uses budget, head start, coordination and complications for the rest of the curve. Presets score 1.0 / 1.7 / 4.3 / 6.4 / 10.0.
 
 ---
 
@@ -286,12 +289,12 @@ The final score reflects five dimensions of security program effectiveness:
 | **Containment** | 30% | What percentage of nodes were never compromised (or successfully reclaimed)? |
 | **Security Posture** | 25% | What percentage of known vulnerability severity was addressed? |
 | **Assessment Coverage** | 15% | What percentage of total vulnerabilities were discovered? |
-| **Incident Response** | 15% | How quickly were compromises detected and remediated? |
-| **Efficiency** | 15% | How much risk was reduced per dollar spent? |
+| **Incident Response** | 15% | Average time from compromise to reclaim, per incident. 30s scores ~83; an incident open 3 minutes, or never found, scores 0. |
+| **Efficiency** | 15% | Share of known risk removed, weighed against the share of income spent. Capped by how much risk you actually removed, so hoarding budget can't score. |
 
 **Hard gate (difficulty 6+)**: Any critical asset (zone 4) breached = automatic **F**, score capped at 39. At lower difficulties (including the Normal preset), a critical breach incurs a -30 penalty but isn't an automatic failure.
 
-**Early win**: If the player secures all discovered nodes, eliminates all compromises, and the red team has no footholds after 5 minutes, the engagement ends early. The response score uses actual elapsed time, rewarding decisive play.
+**Early win**: After 5 minutes, if every discovered node is scanned with no unaddressed medium-or-worse vulnerability (an eroded mitigation doesn't count), no compromises or footholds remain, and the red team has been locked out for a full minute, the engagement ends early. Arresting every operator ends it immediately.
 
 ### Grades
 
