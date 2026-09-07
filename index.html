@@ -852,17 +852,17 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
         <p>Discover the network, scan assets, remediate vulnerabilities, and detect and respond to compromises. You're scored on containment, security posture, assessment coverage, incident response speed, and budget efficiency. At difficulty 6+, any critical asset breached = <strong style="color:var(--red)">automatic F</strong>; below that it's a heavy penalty.</p>
 
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">RESOURCES</p>
-        <p><strong style="color:var(--green)">Analysts</strong> — Your most precious resource. Each analyst can do one thing at a time: vuln scan, deploy EDR, fix vulnerabilities, investigate, respond to incidents, or rebuild systems. You start with 2. Hire a contractor mid-run (+1 analyst, $10K) using the yellow button next to the analyst count.</p>
+        <p><strong style="color:var(--green)">Analysts</strong> — Your most precious resource. Each analyst can do one thing at a time: vuln scan, deploy EDR, fix vulnerabilities, investigate, respond to incidents, or rebuild systems. Your starting headcount is set on the difficulty screen (3 on Normal). Hire a contractor mid-run (+1 analyst, $10K) using the yellow button next to the analyst count.</p>
         <p style="margin-top:6px"><strong style="color:var(--green)">Budget ($)</strong> — Money for fixes, rebuilds, and hiring. Budget replenishes every 60 seconds. The progress bar under the amount shows when the next allocation arrives and how much you'll receive.</p>
-        <p style="margin-top:6px"><strong style="color:var(--green)">Time</strong> — The clock counts up to 15:00. The red team escalates as conditions are met, not by the clock alone. If you secure everything and eliminate all threats after 5 minutes, the engagement ends early.</p>
+        <p style="margin-top:6px"><strong style="color:var(--green)">Time</strong> — The clock counts up to 15:00. The red team escalates as conditions are met, not by the clock alone. After 5 minutes, if every discovered node is scanned with no unaddressed medium-or-worse vulns, no compromises or footholds remain, and the red team has been locked out for a full minute, the engagement ends early. Arresting every operator ends it too.</p>
 
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">SCORING</p>
         <p style="padding-left:12px">
           <strong style="color:var(--green)">Containment</strong> (30%) — % of nodes never compromised or successfully reclaimed.<br>
           <strong style="color:var(--green)">Posture</strong> (25%) — Severity-weighted % of known risk addressed.<br>
           <strong style="color:var(--green)">Assessment</strong> (15%) — % of total vulnerabilities discovered.<br>
-          <strong style="color:var(--green)">Response</strong> (15%) — Speed of incident detection and remediation.<br>
-          <strong style="color:var(--green)">Efficiency</strong> (15%) — Risk reduced per dollar spent.
+          <strong style="color:var(--green)">Response</strong> (15%) — Average time from compromise to reclaim, per incident. A 30s response scores ~83; an incident left open 3 minutes (or never found) scores 0.<br>
+          <strong style="color:var(--green)">Efficiency</strong> (15%) — Share of known risk removed, weighed against the share of your income you spent. Hoarding budget doesn't score; removing risk cheaply does.
         </p>
         <p style="margin-top:4px">Grades: S (95+, difficulty 6+) / A (85+) / B (70+) / C (55+) / D (40+) / F</p>
 
@@ -875,6 +875,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
           <strong style="color:var(--green)">1 / 2 / 3</strong> — Speed: 1x / 2x / 4x<br>
           <strong style="color:var(--green)">M</strong> — Toggle mute<br>
           <strong style="color:var(--green)">Space / Esc</strong> — Pause / Resume<br>
+          <strong style="color:var(--green)">S</strong> — Vuln scan the selected node<br>
           <strong style="color:var(--green)">?</strong> — This help screen
         </p>
 
@@ -885,6 +886,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
           &bull; Deploy EDR on critical assets — Tier 1 detection catches compromises instantly.<br>
           &bull; Mitigate is your friend when budget runs low — it always works, but erodes over time.<br>
           &bull; A cheap Configure can downgrade a Critical to Medium, making it far less exploitable.<br>
+          &bull; You can't afford to patch everything — pick the path to your critical assets and fix that properly.<br>
           &bull; Watch the SIEM feed — vague zone alerts mean a scanned node is under attack.<br>
           &bull; If you see no alerts at all on unscanned nodes, you might already be compromised.
         </p>
@@ -902,7 +904,8 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
           <strong style="color:var(--green)">Perimeter (Zone 0-1)</strong> — Internet-facing systems. The red team's entry point. Firewalls, VPNs, web servers, Wi-Fi access points.<br>
           <strong style="color:var(--amber)">Internal (Zone 2)</strong> — Corporate infrastructure. Workstations, printers, internal servers.<br>
           <strong style="color:var(--red)">Secure (Zone 3)</strong> — Protected systems. Application servers, CI/CD, internal APIs, dev environments.<br>
-          <strong style="color:var(--red)">Critical (Zone 4)</strong> — Crown jewels. Databases, domain controllers, key vaults, backups. A breach here is an automatic F at difficulty 6+, a heavy penalty below.
+          <strong style="color:var(--red)">Critical (Zone 4)</strong> — Crown jewels. Databases, domain controllers, key vaults, backups. A breach here is an automatic F at difficulty 6+, a heavy penalty below.<br>
+          <strong style="color:var(--amber)">Cloud / Shadow IT (Zone 5)</strong> — Cloud VMs, containers, SaaS, IoT and unmanaged devices. Off the main path, but a foothold there can bridge zones.
         </p>
 
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">ASSET DISCOVERY</p>
@@ -970,8 +973,8 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
         <p>Categories affect which vulns passive scanning can find, and which fixes are most appropriate:</p>
         <p style="margin-top:4px;padding-left:12px">
           <strong>Passively detectable:</strong> Exposed services, weak crypto, default credentials, misconfigurations, cloud misconfig, end-of-life software.<br>
-          <strong>Scan required:</strong> Unpatched software, injection flaws, access control issues, API vulnerabilities, supply chain risks, insecure protocols.<br>
-          <strong>EDR required:</strong> Missing monitoring, insider threat indicators, physical security gaps, zero-days.
+          <strong>Vuln scan required:</strong> Everything else — unpatched software, injection flaws, auth bypass, privilege escalation, missing monitoring, data exposure, supply chain risks, physical security gaps, zero-days. A vuln scan reveals every vulnerability on the host.<br>
+          <strong>Mitigate-only:</strong> Physical security gaps and zero-days have no patch — a mitigation is all you can do, and it erodes.
         </p>
       </div>
       </div>
@@ -979,14 +982,14 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
       <!-- ═══ RED TEAM ═══ -->
       <div class="help-tab-content" id="help-tab-redteam">
       <div style="font-size:12px;line-height:1.7;color:var(--green-dim);max-height:60vh;overflow-y:auto">
-        <p style="color:var(--green);margin-bottom:8px">The red team is an AI-controlled adversary with 1-3 independent pentester agents. They operate like a second player — limited resources, strategic decisions, and real-time operations.</p>
+        <p style="color:var(--green);margin-bottom:8px">The red team is an AI-controlled adversary with 1-5 independent pentester agents. They operate like a second player — limited resources, strategic decisions, and real-time operations.</p>
 
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">PENTESTER AGENTS</p>
         <p>Each pentester independently selects targets, scans, exploits, and establishes footholds. Red Team Size (1-5) and Expertise are set on the difficulty screen. <strong>Red Team Coordination</strong> controls whether pentesters share footholds — at low coordination, each operates in isolation.</p>
         <p style="margin-top:4px">A pentester's attack chain: <strong>Scan target</strong> (5-12s) &rarr; <strong>Exploit vuln</strong> (4-10s) &rarr; <strong>Compromise</strong> &rarr; <strong>Persist or Pivot</strong>. Each step takes real time, giving you windows to detect and respond.</p>
 
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">ATTACK BEHAVIOR</p>
-        <p>You get a <strong style="color:var(--green)">head start</strong> (configurable, 1-5 min) before the red team activates. Use this time to scan and prioritize fixes.</p>
+        <p>You get a <strong style="color:var(--green)">head start</strong> (configurable, 1-5 min) before the red team attacks. They are not idle: during the head start they probe your perimeter and build intel. Nodes with EDR show exactly who is being scanned; vuln-scanned nodes get vague zone alerts.</p>
         <p style="margin-top:4px">Once active, each pentester operates independently. Their behavior adapts to their situation:</p>
         <p style="margin-top:4px;padding-left:12px">
           <strong style="color:var(--amber)">No footholds</strong> — Probe and attack perimeter nodes (zone 0-1), looking for an entry point.<br>
@@ -996,13 +999,13 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
         </p>
 
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">PERSISTENCE vs PIVOT</p>
-        <p><strong style="color:var(--red)">Persistence</strong> (15-30s) — Establishes a durable foothold on high-value nodes. Survives your incident response. Even after you kick the attacker out, the persistence marker remains — the red team can re-enter in just 5 seconds. Use <strong>Burn & Rebuild</strong> to fully eliminate it.</p>
+        <p><strong style="color:var(--red)">Persistence</strong> (20-40s, halved if a second pentester doubles up) — Establishes a durable foothold on high-value nodes. Survives your incident response. Even after you kick the attacker out, the backdoor remains — about 20 seconds after IR the red team can walk back in through it in 6-10 seconds, bypassing hardening. That window is your chance to start a <strong>Burn & Rebuild</strong>, the only thing that removes it.</p>
         <p style="margin-top:4px"><strong style="color:var(--amber)">Pivot</strong> (3-8s) — Quick lateral move through low-value nodes (IoT, printers). Fragile — if you reclaim the source node via IR, the pivot fails and the downstream foothold is lost.</p>
 
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">PHYSICAL INTRUSION</p>
-        <p>When the red team is locked out remotely (no viable targets for 30+ seconds), a pentester may go onsite:</p>
-        <p style="margin-top:4px"><strong style="color:var(--amber)">Coffee Shop</strong> — Pentester arrives onsite (10-15s). Can attack Wi-Fi access points and wireless workstations with no penalty for failure. Low risk for the attacker.</p>
-        <p style="margin-top:4px"><strong style="color:var(--red)">Physical Penetration</strong> — Optional high-stakes move. The pentester attempts to physically access secured areas (server rooms, data centers). Success gives instant persistence via USB-jack. Failure risks <strong>permanent removal</strong> — the pentester is caught and detained by security. Fixing physical security vulns makes this harder and more likely to result in capture.</p>
+        <p>When the red team is locked out remotely (no footholds for 45+ seconds), a pentester may go onsite. A visit is a handful of attempts — then the operator leaves, and can be sent back later.</p>
+        <p style="margin-top:4px"><strong style="color:var(--amber)">Coffee Shop</strong> — Pentester arrives onsite (10-15s). Can attack Wi-Fi access points, IoT and unattended workstations with no penalty for failure. Low risk for the attacker — but hardened nodes are off the menu, and EDR or a fully patched box makes the grab much harder.</p>
+        <p style="margin-top:4px"><strong style="color:var(--red)">Physical Penetration</strong> — Optional high-stakes move. The pentester attempts to physically access secured areas (server rooms, data centers). Success gives instant persistence via USB-jack. Failure risks <strong>permanent removal</strong> — the pentester is caught and detained by security. Mitigating physical security vulns makes this harder and more likely to result in capture.</p>
 
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">DETECTION TIERS</p>
         <p>Your ability to see attacks depends on your monitoring posture:</p>
@@ -1014,8 +1017,8 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
         <p style="margin-top:4px">The <strong>"Missing Monitoring"</strong> vulnerability forces Tier 3 even on scanned nodes — fix it or stay blind.</p>
 
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">INCIDENT RESPONSE</p>
-        <p><strong style="color:var(--amber)">Anomaly Investigation</strong> (5-10s, 1 analyst) — Confirms whether an anomaly is a real compromise or false positive. Required for Tier 2 detections. Tier 1 nodes skip this step — compromise is auto-confirmed.</p>
-        <p style="margin-top:4px"><strong style="color:var(--red)">Incident Response</strong> (10-20s, 1 analyst) — Evicts the attacker and hardens the node for 4 minutes. This is a <strong>race</strong> — if the pentester completes persistence before your IR finishes, the foothold survives even after the attacker is kicked out.</p>
+        <p><strong style="color:var(--amber)">Anomaly Investigation</strong> (4-8s, 1 analyst) — Confirms whether an anomaly is a real compromise or a false positive. Required for Tier 2 detections, which arrive 3-6s late. Failed attacks sometimes leave traces that look like a breach — about a third of anomalies are noise, and you only find out by looking. Tier 1 nodes skip this step — compromise is auto-confirmed.</p>
+        <p style="margin-top:4px"><strong style="color:var(--red)">Incident Response</strong> (10-20s, or 8-14s on an EDR node, 1 analyst) — Evicts the attacker and hardens the node for 4 minutes. This is a <strong>race</strong> — if the pentester completes persistence before your IR finishes, the foothold survives even after the attacker is kicked out. Forensics during IR is also how you learn a backdoor exists on a node without EDR.</p>
         <p style="margin-top:4px"><strong style="color:var(--red)">Burn & Rebuild</strong> ($8-20K, 25-45s, 1 analyst) — Scorched-earth system replacement. The only way to fully eliminate persistence. Takes the node offline during rebuild, severs downstream red team access. The node comes back clean with zero vulnerabilities. Cannot be done during active compromise — complete IR first. <strong>Warning:</strong> completing a rebuild costs you one analyst permanently — someone's getting fired for letting it get this bad.</p>
       </div>
       </div>
@@ -1213,9 +1216,6 @@ const NETWORK_TEMPLATES = [
   { id: 'government',   name: 'Government',    weights: [1.3,1.1,1,1.2,1.1,0.3], intelReq: 850 },
 ];
 
-// Legacy constant for backward compat — actual modifier system uses MODIFIER_DEFS
-const RUN_MODIFIERS = [];
-
 /* ─── Difficulty Configuration System ─── */
 
 // Slider definitions: [position0, position1, position2, position3, position4]
@@ -1238,7 +1238,7 @@ const MODIFIER_DEFS = {
   mssp_monitor:      { name: 'MSSP Monitoring',      desc: 'No "missing monitoring" vulnerabilities',                 group: 'good', icon: '📡', randomChance: 0.45 },
   remote_attacker:   { name: 'Remote Attacker',      desc: 'No physical vulns, no onsite attacks',                    group: 'good', icon: '🌐', randomChance: 0.45 },
   grizzled_vet:      { name: 'Grizzled IT Veteran',  desc: 'Fixes never fail',                                       group: 'good', icon: '🧔', randomChance: 0.30 },
-  strong_iam:        { name: 'Strong IAM',           desc: 'Suppress brute force — credentials are strong & rotated', group: 'good', icon: '🔑', randomChance: 0.45 },
+  strong_iam:        { name: 'Strong IAM',           desc: 'No brute force and no default-credential vulns',           group: 'good', icon: '🔑', randomChance: 0.45 },
   threat_intel_feed: { name: 'Threat Intel Feed',    desc: 'Reveals the current target of one red team pentester',    group: 'good', icon: '🎯', randomChance: 0.45 },
   net_mapper:        { name: 'Network Mapper',       desc: 'Zone outlines visible on the map at start',               group: 'good', icon: '🗺', randomChance: 0.45 },
   passive_recon:     { name: 'Passive Recon',        desc: 'Start with 20% more assets pre-discovered',               group: 'good', icon: '📡', randomChance: 0.45 },
@@ -1247,9 +1247,9 @@ const MODIFIER_DEFS = {
   govt_oversight:    { name: 'Government Oversight',  desc: 'Fix times 1.5× longer (paperwork)',                      group: 'bad',  icon: '📋', randomChance: 0.40 },
   governance_lock:   { name: 'Governance Requirements',desc: '30% of vulns can only be mitigated',                    group: 'bad',  icon: '🔒', randomChance: 0.55 },
   insider:           { name: 'Insider Threat',        desc: 'One node starts compromised with persistence',           group: 'bad',  icon: '🕵', randomChance: 0.25 },
-  pandemic:          { name: 'Pandemic Protocol',     desc: 'One idle analyst goes AFK every ~90s',                   group: 'bad',  icon: '🤢', randomChance: 0.55 },
+  pandemic:          { name: 'Pandemic Protocol',     desc: 'An idle analyst steps away for 15-30s every 1-2 min',    group: 'bad',  icon: '🤢', randomChance: 0.55 },
   legacy:            { name: 'Legacy Env', desc: '30% of nodes get legacy flag, boosting vuln severity',   group: 'bad',  icon: '💾', randomChance: 0.40 },
-  zeroday_mod:       { name: 'Zero Day',             desc: 'One critical vuln has no available fix',                  group: 'bad',  icon: '💀', randomChance: 0.25 },
+  zeroday_mod:       { name: 'Zero Day',             desc: 'One critical vuln has no patch — it can only be mitigated', group: 'bad',  icon: '💀', randomChance: 0.25 },
   shadow_it:         { name: 'Shadow IT',            desc: 'Unmanaged devices appear mid-game — red team finds them first', group: 'bad', icon: '👻', randomChance: 0.40 },
   supply_chain:      { name: 'Supply Chain',         desc: 'Backdoored dependency — same critical vuln hits multiple nodes', group: 'bad', icon: '🔗', randomChance: 0.25 },
 };
@@ -1257,16 +1257,19 @@ const MODIFIER_DEFS = {
 // Preset configurations: slider positions (0-4, left-to-right = least-to-most)
 // Modifier positions: 0=OFF, 1=Random, 2=ON
 // For player resources: higher = more. For RT: higher = more (harder).
+// Tuned 2026-09-07 against the headless simulation: red team size is by far the strongest lever
+// (each extra pentester roughly doubles pressure), so the ladder steps it 1 → 1 → 1 → 2 → 4 and
+// leans on budget, head start, coordination and complications for the rest of the curve.
 const DIFFICULTY_PRESETS = {
   tutorial:  { label: 'Tutorial',   sliders: { startBudget:4, dripAmount:4, startAnalysts:4, teamExpertise:4, rtSize:0, rtExpertise:0, rtCoordination:0, headStart:4 },
                mods: { mssp_monitor:2, remote_attacker:2, grizzled_vet:2, strong_iam:2, threat_intel_feed:2, net_mapper:2, passive_recon:2, playbooks:2 } },
   easy:      { label: 'Easy',       sliders: { startBudget:3, dripAmount:3, startAnalysts:3, teamExpertise:3, rtSize:0, rtExpertise:1, rtCoordination:1, headStart:3 },
                mods: { mssp_monitor:2, grizzled_vet:2, remote_attacker:1, strong_iam:1, threat_intel_feed:1, net_mapper:1, passive_recon:1, playbooks:1 } },
-  normal:    { label: 'Normal',     sliders: { startBudget:2, dripAmount:2, startAnalysts:2, teamExpertise:2, rtSize:1, rtExpertise:2, rtCoordination:2, headStart:2 },
+  normal:    { label: 'Normal',     sliders: { startBudget:2, dripAmount:2, startAnalysts:2, teamExpertise:2, rtSize:0, rtExpertise:2, rtCoordination:2, headStart:2 },
                mods: { mssp_monitor:1, remote_attacker:1, grizzled_vet:1, strong_iam:1, threat_intel_feed:1, net_mapper:1, passive_recon:1, playbooks:1, govt_oversight:1, pandemic:1, governance_lock:1 } },
-  hard:      { label: 'Hard',       sliders: { startBudget:1, dripAmount:1, startAnalysts:1, teamExpertise:1, rtSize:2, rtExpertise:3, rtCoordination:3, headStart:1 },
+  hard:      { label: 'Hard',       sliders: { startBudget:1, dripAmount:1, startAnalysts:2, teamExpertise:1, rtSize:1, rtExpertise:2, rtCoordination:3, headStart:1 },
                mods: { strong_iam:1, threat_intel_feed:1, govt_oversight:1, governance_lock:1, insider:1, pandemic:1, legacy:1, zeroday_mod:1, shadow_it:1, supply_chain:1 } },
-  nightmare: { label: 'Nightmare',  sliders: { startBudget:0, dripAmount:0, startAnalysts:0, teamExpertise:0, rtSize:4, rtExpertise:4, rtCoordination:4, headStart:0 },
+  nightmare: { label: 'Nightmare',  sliders: { startBudget:0, dripAmount:0, startAnalysts:1, teamExpertise:0, rtSize:3, rtExpertise:4, rtCoordination:4, headStart:0 },
                mods: { legacy:2, zeroday_mod:2, govt_oversight:2, governance_lock:2, insider:1, pandemic:1, shadow_it:2, supply_chain:2 } },
 };
 
@@ -1351,13 +1354,13 @@ function applyPreset(id) {
 const ACHIEVEMENTS = [
   { id: 'first_scan',    name: 'First Scan',         desc: 'Complete your first run', check: s => s.totalRuns >= 1 },
   { id: 'clean_sweep',   name: 'Clean Sweep',        desc: 'Discover 100% of assets in a run', check: null },
-  { id: 'zero_breach',   name: 'Zero Breach',        desc: 'Survive audit with no breaches', check: null },
+  { id: 'zero_breach',   name: 'Zero Breach',        desc: 'Pass a run with no node ever compromised', check: null },
   { id: 'penny_pincher', name: 'Penny Pincher',      desc: 'Complete a run spending <50% budget', check: null },
   { id: 'speed_run',     name: 'Speed Run',          desc: 'Trigger an early win (under 8 min)', check: null },
-  { id: 'no_stone',      name: 'No Stone Unturned',  desc: 'Find all hidden assets in a run', check: null },
-  { id: 'crit_cond',     name: 'Critical Condition', desc: 'Fix all Critical vulns in a run', check: null },
+  { id: 'no_stone',      name: 'No Stone Unturned',  desc: 'Find every shadow IT device in a run', check: null },
+  { id: 'crit_cond',     name: 'Critical Condition', desc: 'Address every Critical vuln in a run', check: null },
   { id: 'budget_hero',   name: 'Budget Hero',        desc: 'Grade A with $10K+ unspent', check: null },
-  { id: 'odds',          name: 'Against All Odds',   desc: 'Pass Threat Level 8+', check: null },
+  { id: 'odds',          name: 'Against All Odds',   desc: 'Pass a run at difficulty 8+', check: null },
   { id: 'completionist', name: 'Completionist',      desc: 'Unlock all network templates', check: null },
   { id: 'five_runs',     name: 'Veteran Scanner',    desc: 'Complete 5 runs', check: s => s.totalRuns >= 5 },
   { id: 'ten_runs',      name: 'Senior Analyst',     desc: 'Complete 10 runs', check: s => s.totalRuns >= 10 },
@@ -1422,6 +1425,19 @@ function sevLabel(sev) {
 // Models compensating controls losing effectiveness as attackers adapt — mitigate buys
 // time, it doesn't buy safety. Re-mitigate to refresh, or upgrade to a permanent fix.
 const MITIGATION_GRACE = 60, MITIGATION_DECAY = 240, MITIGATION_FLOOR = 0.35;
+
+// ── Red team pacing ──
+// LOCKOUT_WIN_SECS: sustained seconds of "network secured, no red team presence" before the early win.
+// ONSITE_MAX_ATTEMPTS: physical grabs an onsite operator makes before leaving the premises.
+// REENTRY_DELAY: seconds after an IR eviction before a planted backdoor can be used again — the
+// defender's window to start a Burn & Rebuild.
+const LOCKOUT_WIN_SECS = 60, ONSITE_MAX_ATTEMPTS = 4, REENTRY_DELAY = 20;
+// Response axis: an incident open this long (or never reclaimed) scores 0 on that axis.
+const RESPONSE_WINDOW = 180;
+// Tier 2 (vuln-scanned, no EDR) alerts are delayed by this much; Tier 1 is instant.
+const TIER2_ALERT_DELAY = [3, 6];
+// Chance that a failed exploit against a Tier 2 node raises a benign anomaly (alert-triage noise).
+const FALSE_POSITIVE_CHANCE = 0.35;
 function getMitigationFactor(v) {
   if (!v.mitigated || v.fixed) return 0;
   const age = (R ? R.elapsed : 0) - (v.mitigatedAt || 0);
@@ -1433,10 +1449,13 @@ function getMitigationFactor(v) {
 /* ═══════════════════════════════════════════════════════════════
    SCREEN MANAGEMENT
    ═══════════════════════════════════════════════════════════════ */
+function isRunActive() {
+  return !!R && R.phase !== 'COMPLETE' && document.getElementById('run-screen').classList.contains('active');
+}
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  if (id === 'hq-screen') renderHQ();
+  if (id === 'hq-screen') { R = null; renderHQ(); } // leaving for HQ ends any run for good
 }
 let _modalReturnFocus = null;
 function showModal(id) {
@@ -1884,8 +1903,6 @@ function generateNetwork(templateId, threatLevel, activeMods = []) {
     let [lo, hi] = ZONE_NODE_RANGE[z];
     lo = Math.max(1, Math.round(lo * template.weights[z]));
     hi = Math.max(lo, Math.round(hi * template.weights[z]));
-    // Cloud migration doubles zone 5
-    if (z === 5 && mods.find(m => m.id === 'cloud_mig')) { lo *= 2; hi *= 2; }
     const count = rand(lo, hi);
     const zoneTypes = Object.entries(ASSET_TYPES).filter(([,v]) => v.zones.includes(z));
 
@@ -2199,6 +2216,7 @@ function generateVulns(node, threatLevel, mods) {
   let availCats = [...VULN_CATEGORIES];
   if (am.includes('mssp_monitor') || threatLevel <= 2) availCats = availCats.filter(c => c.id !== 'no_monitor');
   if (am.includes('remote_attacker')) availCats = availCats.filter(c => !c.vectors || !c.vectors.every(v => v === 'Physical'));
+  if (am.includes('strong_iam')) availCats = availCats.filter(c => c.id !== 'default_creds');
 
   for (let i = 0; i < count; i++) {
     const cat = pick(availCats);
@@ -2223,12 +2241,9 @@ function generateVulns(node, threatLevel, mods) {
 
     const exploitability = clamp(exploitMat * AV_WEIGHTS[av] * (0.7 + ds * 0.03), 0.05, 0.95);
 
-    // Determine available fix types for this vuln
+    // Natural fix type for this vuln (cost/time/success are rolled per attempt in startFix)
     const fixType = pick(cat.fixTypes);
     const ft = FIX_TYPES[fixType];
-    const cost = rand(ft.costRange[0], ft.costRange[1]);
-    const time = rand(ft.timeRange[0], ft.timeRange[1]);
-    const successRate = randf(ft.successRange[0], ft.successRange[1]);
 
     // Governance lock: 30% of vulns can only be mitigated
     const fixLocked = am.includes('governance_lock') && Math.random() < 0.3;
@@ -2238,7 +2253,6 @@ function generateVulns(node, threatLevel, mods) {
       name, category: cat, attackVector: av,
       severity, exploitability,
       fixType, fixLabel: ft.label, fixEffect: ft.effect,
-      cost, time, successRate: Math.round(successRate * 100) / 100,
       requiresDowntime: ft.downtime,
       fixed: false, mitigated: false, mitigationFactor: 0,
       fixing: false, fixProgress: 0,
@@ -2627,8 +2641,6 @@ function renderCanvas() {
       // Track ring background
       ctx.beginPath();
       ctx.arc(n.x, n.y, ringR, 0, Math.PI * 2);
-      ctx.strokeStyle = rc.replace(')', ',0.12)').replace('rgb', 'rgba').replace('#', '');
-      // Use hex alpha for track
       ctx.strokeStyle = ri === 0 ? Grgba(0.1) : ri === 1 ? 'rgba(0,229,255,0.1)' : ri === 2 ? 'rgba(255,176,0,0.1)' : 'rgba(255,102,51,0.1)';
       ctx.lineWidth = 2.5;
       ctx.stroke();
@@ -2688,8 +2700,8 @@ function renderCanvas() {
       ctx.fillText('☠', n.x - 14, n.y - 14);
     }
 
-    // Persistence node — pulsing dark red dashed ring (backdoor present but not actively compromised)
-    if (n.persistence && !n.compromised) {
+    // Persistence node — pulsing dark red dashed ring (known backdoor, not actively compromised)
+    if (playerKnowsPersistence(n) && !n.compromised) {
       const pulse = (Math.sin(R.elapsed * 2) + 1) / 2;
       ctx.save();
       ctx.setLineDash([4, 4]);
@@ -2869,6 +2881,7 @@ function scanAsset(nodeId) {
   if (getActiveWorkCount() >= R.teamSlots) {
     addLog('All analysts busy — wait or hire contractor', 'warn'); return;
   }
+  initAudio(); sfxScan();
   node.scanning = true;
   node.scanProgress = 0;
   node.scanTotalTime = rand(15, 25);
@@ -2876,7 +2889,18 @@ function scanAsset(nodeId) {
   updateResourceDisplay();
   renderDetail();
   renderAssetList();
-  renderAssetList();
+}
+
+// Per-fix parameters: the fix type's defaults, overridden per vuln when the vuln says so
+// (e.g. a supply-chain dependency swap is cheaper than a full Replace but less reliable).
+function getFixParams(vuln, fixType) {
+  const base = FIX_TYPES[fixType];
+  const o = vuln.fixOverrides && vuln.fixOverrides[fixType];
+  return o ? { ...base, ...o } : base;
+}
+// Rework/upgrade multiplier: a full fix on top of a partial one costs 1.5x
+function fixCostMult(vuln, fixType) {
+  return (vuln.mitigated || vuln.configured) && FIX_TYPES[fixType].effect === 'full' ? 1.5 : 1;
 }
 
 function startFix(nodeId, vulnIdx, fixType) {
@@ -2891,22 +2915,24 @@ function startFix(nodeId, vulnIdx, fixType) {
 
   const ft = FIX_TYPES[fixType];
   if (!ft) return;
+  const fp = getFixParams(vuln, fixType);
+  const costMult = fixCostMult(vuln, fixType);
+
+  // Check team capacity before anything is consumed (a free playbook fix must not be spent on a refusal)
+  if (getActiveWorkCount() >= R.teamSlots) { addLog('All analysts busy — wait or hire contractor', 'warn'); return; }
 
   // Check minimum cost upfront so button state matches action
-  if (!node.firstFixFree && R.budget < ft.costRange[0]) { addLog('Insufficient budget for fix', 'warn'); return; }
+  const minCost = Math.round(fp.costRange[0] * costMult);
+  if (!node.firstFixFree && R.budget < minCost) { addLog('Insufficient budget for fix', 'warn'); return; }
 
-  // First fix free on asset?
+  // First fix free on asset? Otherwise roll the cost (with rework multiplier), capped at what's left —
+  // the cap comes last so the budget can never go negative.
   let cost;
   if (node.firstFixFree) { cost = 0; node.firstFixFree = false; }
-  else { cost = rand(ft.costRange[0], Math.min(ft.costRange[1], R.budget)); }
+  else { cost = Math.min(R.budget, Math.round(rand(fp.costRange[0], fp.costRange[1]) * costMult)); }
 
-  // Rework cost: 1.5x when re-fixing a mitigated/configured vuln
-  if ((vuln.mitigated || vuln.configured) && ft.effect === 'full') {
-    cost = Math.round(cost * 1.5);
-  }
-
-  let time = rand(ft.timeRange[0], ft.timeRange[1]);
-  let successRate = randf(ft.successRange[0], ft.successRange[1]);
+  let time = rand(fp.timeRange[0], fp.timeRange[1]);
+  let successRate = randf(fp.successRange[0], fp.successRange[1]);
 
   // Category bonus — some vulns have inherently higher fix success (you either change the key or you don't)
   const vulnCat = vuln.category;
@@ -2918,10 +2944,7 @@ function startFix(nodeId, vulnIdx, fixType) {
   if (R.activeMods.includes('govt_oversight')) time = Math.ceil(time * 1.5);
   time = Math.ceil(time * R.teamExpertise); // team expertise slider
 
-  // Check team capacity (fixes + investigations)
-  const activeFixCount = getActiveWorkCount();
-  if (activeFixCount >= R.teamSlots) { addLog('All analysts busy — wait or hire contractor', 'warn'); return; }
-
+  initAudio(); sfxFix();
   R.budget -= cost;
   R.budgetSpent += cost;
   vuln.fixing = true;
@@ -2938,7 +2961,7 @@ function startFix(nodeId, vulnIdx, fixType) {
 }
 
 function hireContractor() {
-  if (!R || R.paused) return;
+  if (!R || R.phase === 'COMPLETE') return; // hiring is paperwork, not analyst time — allowed while paused
   if (R.budget < 10000) { addLog('Need $10K to hire contractor', 'warn'); return; }
   if (R.contractorHired) { addLog('Already hired a contractor this run', 'warn'); return; }
   R.budget -= 10000;
@@ -2957,6 +2980,7 @@ function hireContractor() {
 function startRun() {
   _resDom = null; _lastResState = { budget: -1, work: -1, disc: -1 }; // reset cached DOM refs
   _activeWorkCache = { frame: -1, count: 0 };
+  _lastHintCheck = 0;
   const templateId = document.getElementById('sel-template').value;
   const clockSpeed = 1;
 
@@ -2991,7 +3015,7 @@ function startRun() {
     paused: false,
     phase: 'ACTIVE',  // only used for COMPLETE detection
     isTutorial: detectPreset() === 'tutorial',
-    _tutorialStep: null, // null until briefing ends, then 'passive' → 'scan' → 'deepscan' → 'fix' → 'done'
+    _tutorialStep: null, // null until briefing ends, then 'scan' → 'deepscan' → 'fix' → 'done'
     budget,
     budgetSpent: 0,
     startBudget: budget,
@@ -3065,6 +3089,8 @@ function startRun() {
     ins.compromiseConfirmed = true;
     ins.persistence = true;          // "starts compromised with persistence" — needs Burn & Rebuild
     ins.compromisedAt = 0.001;       // non-falsy so it counts toward the Response score
+    ins.incidents = [{ at: 0.001, reclaimedAt: null }];
+    ins.persistenceKnown = true;     // HR already told you about this one
     R.redTeam.compromised.add(ins.id);
     R.redTeam.persistedNodes.add(ins.id);
     R.redTeam.footholds.push(ins.id);
@@ -3090,13 +3116,11 @@ function startRun() {
         severity: Math.round(randf(9.0, 10.0) * 10) / 10,
         exploitability: randf(0.70, 0.90),
         fixType: 'mitigate', fixLabel: 'Mitigate', fixEffect: 'mitigate',
-        cost: 0, time: 0, successRate: 1,
         requiresDowntime: false,
         fixed: false, mitigated: false, mitigationFactor: 0,
         fixing: false, fixProgress: 0,
         revealed: false,
-        fixLocked: false,
-        noFix: true, // zero-day: no remediation available at all
+        fixLocked: false, // zeroday category is mitigate-only: no patch exists, you can only buy time
       };
       zdNode.vulns.push(zdVuln);
       R.totalVulns++;
@@ -3176,11 +3200,14 @@ function gameLoop() {
       // Uses a persistent lockedOutTimer (see processRedTeam) rather than a transient pentester
       // state, which flips back to a new target within a single frame.
       if (R.phase !== 'COMPLETE' && R.elapsed >= 300 && R.redTeam.pentesters.length > 0 &&
-          (R.redTeam.lockedOutTimer || 0) >= 30) {
+          (R.redTeam.lockedOutTimer || 0) >= LOCKOUT_WIN_SECS) {
         addLog('✓ RED TEAM: Engagement concluded — no viable attack paths', 'ok');
         R.phase = 'COMPLETE';
         endRun();
       }
+
+      // Run is over — results are on screen; nothing further ticks
+      if (R.phase === 'COMPLETE') { animFrame = null; return; }
 
       // Process red team (runs continuously from the start)
       processRedTeam(dt * R.clockSpeed);
@@ -3284,6 +3311,7 @@ function gameLoop() {
   } catch (e) {
     console.error('[PumaSecure] Game loop error:', e);
   }
+  if (R && R.phase === 'COMPLETE') { animFrame = null; return; }
   animFrame = requestAnimationFrame(gameLoop);
 }
 
@@ -3437,6 +3465,10 @@ function processScans(dt) {
           sfxBreach();
           screenShake();
         }
+        if (node.persistence && !node.persistenceKnown) {
+          node.persistenceKnown = true;
+          addLog(`🔴 EDR on ${node.name} found a persistence mechanism — Burn & Rebuild required`, 'crit');
+        }
         updateResourceDisplay();
         renderAssetList();
         if (R.selectedNode === node.id) renderDetail();
@@ -3454,6 +3486,11 @@ function processScans(dt) {
       }
     }
   }
+}
+
+function closeIncident(node) {
+  const inc = node.incidents && node.incidents[node.incidents.length - 1];
+  if (inc && inc.reclaimedAt == null) inc.reclaimedAt = R.elapsed;
 }
 
 function processFixes(dt) {
@@ -3485,13 +3522,16 @@ function processFixes(dt) {
         node.compromiseConfirmed = false;
         node.anomaly = false;
         node.reclaimedAt = R.elapsed;
+        closeIncident(node);
         node.hardened = true;
         node.hardenedUntil = R.elapsed + 240;
         R.redTeam.compromised.delete(node.id);
 
-        // Remove from footholds ONLY if no persistence
+        // Remove from footholds ONLY if no persistence — forensics finds the backdoor
         if (!node.persistence) {
           R.redTeam.footholds = R.redTeam.footholds.filter(id => id !== node.id);
+        } else {
+          node.persistenceKnown = true;
         }
 
         // Kick any pentester working this node
@@ -3521,6 +3561,7 @@ function processFixes(dt) {
         node.investigating = false;
         node.compromised = false;
         node.reclaimedAt = R.elapsed;
+        closeIncident(node);
         node.hardened = true;
         node.hardenedUntil = R.elapsed + 240;
         R.redTeam.compromised.delete(node.id);
@@ -3664,14 +3705,15 @@ function startInvestigation(nodeId) {
     // Anomaly investigation: confirm or dismiss
     node.investigating = true;
     node.irProgress = 0;
-    node.irTotalTime = rand(5, 10);
+    node.irTotalTime = rand(4, 8);
     node.irType = 'anomaly';
     addLog(`Investigating anomaly on ${node.name}...`, 'info');
   } else if (node.compromised && (node.compromiseConfirmed || getDetectionTier(node) === 1)) {
     // Full incident response
     node.investigating = true;
     node.irProgress = 0;
-    node.irTotalTime = rand(10, 20);
+    // EDR telemetry shows exactly what happened — response is faster on Tier 1 nodes
+    node.irTotalTime = node.deepScanned ? rand(8, 14) : rand(10, 20);
     node.irType = 'ir';
     addLog(`Incident response started on ${node.name} — ETA ${node.irTotalTime}s`, 'info');
   } else {
@@ -3696,7 +3738,7 @@ const IR_FLAVOR = [
 function burnAndRebuild(nodeId) {
   if (!R || R.paused || R.phase === 'COMPLETE') return;
   const node = R.net.nodes[nodeId];
-  if (!node || !node.persistence || node.compromised || node.rebuilding) return;
+  if (!node || !playerKnowsPersistence(node) || node.compromised || node.rebuilding) return;
   const cost = REBUILD_COSTS[node.zone] || 12000;
   if (R.budget < cost) { addLog('Insufficient budget for Burn & Rebuild', 'warn'); return; }
   if (getActiveWorkCount() >= R.teamSlots) { addLog('All analysts busy', 'warn'); return; }
@@ -3704,6 +3746,8 @@ function burnAndRebuild(nodeId) {
   R.budgetSpent += cost;
   node.rebuilding = true;
   node.rebuildProgress = 0;
+  // Offline from this moment — the red team can't route through a box that's being reimaged
+  R.redTeam.footholds = R.redTeam.footholds.filter(id => id !== node.id);
   const range = REBUILD_TIMES[node.zone] || [25, 35];
   node.rebuildTotalTime = rand(range[0], range[1]);
   addLog(`🔥 Burn & Rebuild initiated on ${node.name} — system going offline ($${(cost/1000).toFixed(0)}K)`, 'crit');
@@ -3724,6 +3768,8 @@ function processRebuilds(dt) {
       // Re-roll the node: clear all vulns (clean system)
       node.vulns = [];
       node.rebuilt = true;      // fresh system — never lazily regenerate vulns on it
+      node.persistenceKnown = false;
+      node.buffApplied = false; // a fresh box can be strategically compromised again
       node.scanned = true;      // you just built it; you have full visibility (Tier 2)
       node.deepScanned = false; // EDR must be redeployed on the new box
       node.scanning = false;
@@ -3749,6 +3795,7 @@ function processRebuilds(dt) {
               neighbor.compromised = false;
               neighbor.compromiseConfirmed = false;
               neighbor.anomaly = false;
+              closeIncident(neighbor);
               R.redTeam.compromised.delete(nId);
               R.redTeam.footholds = R.redTeam.footholds.filter(id => id !== nId);
               // Kick pentesters on severed nodes
@@ -3791,13 +3838,6 @@ function processPassiveIntel(dt) {
         addLog(`Passive scan detected: ${v.name} on ${node.name}`, 'info');
         if (R.selectedNode === node.id) renderDetail();
         renderAssetList();
-        // Tutorial: first passive vuln → suggest clicking the node
-        if (R.isTutorial && R._tutorialStep === 'passive') {
-          R._tutorialStep = 'scan';
-          R._tutorialNodeId = node.id;
-          advanceTutorial('scan', `.asset-item[data-node-id="${node.id}"]`, 'VULNERABILITY DETECTED',
-            `A vulnerability was passively detected on <strong>${node.name}</strong>. Click the node to see it, then click <strong>Vuln Scan</strong> to find more.`, 'right');
-        }
       }
     }
   }
@@ -3879,7 +3919,10 @@ function processModifierTimers(dt) {
       R.lastIntelTarget = targetId;
       if (targetId !== null) {
         const node = R.net.nodes[targetId];
-        if (node) addLog(`🎯 INTEL: Red team operator targeting ${node.name}`, 'warn');
+        if (node) {
+          if (!node.discovered) { node.discovered = true; R.totalDiscovered++; renderAssetList(); }
+          addLog(`🎯 INTEL: Red team operator targeting ${node.name}`, 'warn');
+        }
       }
     }
   }
@@ -3987,10 +4030,9 @@ function processModifierTimers(dt) {
             severity: Math.round(severity * 10) / 10,
             exploitability: randf(0.7, 0.95),
             fixType: 'replace',
-            fixLabel: 'Replace ' + depName,
-            cost: rand(4000, 8000), // dependency swap under fire is not a bargain-bin fix
-            time: rand(20, 35),
-            successRate: 0.75,
+            fixLabel: 'Replace',
+            // A dependency swap under fire: cheaper than a full Replace, but less reliable
+            fixOverrides: { replace: { costRange: [4000, 8000], timeRange: [20, 35], successRange: [0.70, 0.80] } },
             requiresDowntime: true,
             fixed: false,
             mitigated: false,
@@ -4016,7 +4058,7 @@ function setSpeed(speed) {
   R.paused = speed === 0;
   R.clockSpeed = speed || 1;
   R._canvasDirty = true;
-  if (!R.paused) { lastTick = performance.now(); R._pauseMsg = null; }
+  if (!R.paused) lastTick = performance.now();
   updateSpeedButtons();
   const clockEl = document.getElementById('hdr-clock');
   if (R.paused) {
@@ -4076,29 +4118,16 @@ function resetRestartBtn() {
 /* ═══════════════════════════════════════════════════════════════
    RED TEAM AUDIT
    ═══════════════════════════════════════════════════════════════ */
-// Red team attack intervals per phase (seconds between attempts, scaled by threat level)
-
 const RT_PROBE_MSGS = [
   'Port scan detected on','SYN flood probe against','Service enumeration on',
   'DNS reconnaissance targeting','SNMP sweep detected near','Banner grabbing attempt on',
   'Vulnerability scanner traffic aimed at','Credential stuffing attempt on',
 ];
 
-function rtGetInterval() {
-  // Interval based on deepest foothold, not global phase
-  const rt = R.redTeam;
-  const deepest = rt.footholds.reduce((max, fId) => {
-    const fn = R.net.nodes[fId]; return fn ? Math.max(max, fn.zone) : max;
-  }, -1);
-  let range;
-  if (deepest >= 4) range = [3, 5];       // deep inside — fast and aggressive
-  else if (deepest >= 3) range = [4, 6];
-  else if (deepest >= 1) range = [5, 8];
-  else if (deepest >= 0) range = [6, 10];
-  else range = [8, 12];                    // no footholds — slow probing
-  // rtExpertise from config: lower = faster (0.6 = very fast, 1.4 = slow)
-  // Already baked into pentester speedMult, but interval also scales
-  return randf(range[0], range[1]);
+// A backdoor the player has actually found: IR forensics, EDR telemetry, or a Tier 1 alert at the
+// moment it was planted. Persistence on a silently compromised node stays invisible.
+function playerKnowsPersistence(node) {
+  return !!(node && node.persistence && node.persistenceKnown);
 }
 
 // Detection tier: 1 = EDR deployed (instant, specific), 2 = vuln scanned (delayed, vague), 3 = unmonitored (silent)
@@ -4137,7 +4166,7 @@ function queueDetectionAlert(node, eventType, pentesterId) {
     }
   } else {
     // Vague, delayed
-    delay = randf(5, 10);
+    delay = randf(TIER2_ALERT_DELAY[0], TIER2_ALERT_DELAY[1]);
     if (eventType === 'scanning') {
       msg = `⚠ Unusual traffic detected in ${zoneName} zone`;
       level = 'warn';
@@ -4189,7 +4218,7 @@ function rtTryExploit(node, pentester) {
 
     // Intel filtering: skip vuln categories the red team hasn't discovered
     // Network vulns are always attempted; others need gathered intel
-    if (intel && !intel.has(vuln.category.id) && vuln.attackVector !== 'Network') continue;
+    if ((!intel || !intel.has(vuln.category.id)) && vuln.attackVector !== 'Network') continue;
 
     // Physical vector: requires pentester to be physically onsite
     let chance;
@@ -4261,12 +4290,34 @@ function ptReset(pt, cooldownTime) {
   pt.doubledWith = null;
 }
 
+// Stand down any pentester that doubled up onto this one's attempt
+function ptResetHelpers(pt, cooldownTime) {
+  for (const q of R.redTeam.pentesters) {
+    if (q !== pt && q.doubledWith === pt.id) ptReset(q, cooldownTime);
+  }
+}
+
+// Alert-triage noise: a failed attack against a Tier 2 node sometimes leaves traces that look
+// like a compromise. Investigating dismisses it — but it still costs an analyst.
+function rtMaybeFalsePositive(node) {
+  if (node.compromised || node.anomaly || node.compromiseConfirmed) return;
+  if (Math.random() >= FALSE_POSITIVE_CHANCE) return;
+  const [lo, hi] = TIER2_ALERT_DELAY;
+  R.pendingAlerts.push({
+    fireAt: R.elapsed + randf(lo, hi), nodeId: node.id, eventType: 'anomaly',
+    msg: `⚠ Anomalous behavior detected in ${ZONE_NAMES[node.zone] || 'Unknown'} zone`, level: 'crit',
+  });
+}
+
 function ptCompromiseNode(pt, node, vulnUsed) {
   const rt = R.redTeam;
   if (rt.compromised.has(node.id)) { ptReset(pt, 1); return; }
 
-  // Mark as compromised
+  // Mark as compromised — one incident record per compromise, so response time is measured
+  // per incident and a stale reclaim timestamp can never precede the current compromise.
   node.compromisedAt = R.elapsed;
+  node.reclaimedAt = null;
+  (node.incidents || (node.incidents = [])).push({ at: R.elapsed, reclaimedAt: null });
   rt.compromised.add(node.id);
 
   // Detection determines what the player sees
@@ -4333,7 +4384,7 @@ function ptCompromiseNode(pt, node, vulnUsed) {
     // Establish persistence on high-value targets
     pt.state = 'persisting';
     pt.progress = 0;
-    pt.totalTime = randf(15, 30) * pt.speedMult; // speedMult from rtExpertise slider
+    pt.totalTime = randf(20, 40) * pt.speedMult; // speedMult from rtExpertise slider
     // Temporary foothold during persistence attempt
     if (!rt.footholds.includes(node.id)) rt.footholds.push(node.id);
     pt.personalFootholds.add(node.id);
@@ -4347,6 +4398,8 @@ function ptCompromiseNode(pt, node, vulnUsed) {
     if (!rt.footholds.includes(node.id)) rt.footholds.push(node.id);
     pt.personalFootholds.add(node.id);
 
+    // On the box now: learn what the neighbors are running before picking where to go
+    rtPostExploitRecon(node);
     // Pick pivot target (neighbor)
     const neighbors = rtGetNeighbors(node.id).filter(id => !rt.compromised.has(id));
     if (neighbors.length) {
@@ -4377,7 +4430,6 @@ function ptCompromiseNode(pt, node, vulnUsed) {
       ptReset(pt, randf(2, 4));
       // Apply buffs even without pivoting
       rtApplyStrategicBuff(node);
-      rtPostExploitRecon(node);
     }
   }
 }
@@ -4386,6 +4438,8 @@ function ptCompromiseNode(pt, node, vulnUsed) {
 function rtApplyStrategicBuff(node) {
   const strat = NODE_STRATEGY[node.type];
   if (!strat || !strat.strategicBuff) return;
+  if (node.buffApplied) return; // once per node — cleared when the node is rebuilt
+  node.buffApplied = true;
   const rt = R.redTeam;
   rt.buffs.add(strat.strategicBuff);
   switch (strat.strategicBuff) {
@@ -4446,14 +4500,14 @@ function ptPickPhysicalTarget(pt) {
   // Low-risk: wifiap, workstation, iot (no incarceration risk)
   // High-risk: zone >= 3 nodes with physical vulns (incarceration risk)
   const physicalTargets = R.net.nodes.filter(n => {
-    if (rt.compromised.has(n.id) || n.rebuilding) return false;
+    if (rt.compromised.has(n.id) || n.rebuilding || n.hardened) return false;
     if (PHYS_EXEMPT_TYPES.has(n.type)) return false; // cloud assets aren't in the building
     // Wi-Fi APs and IoT are always physically accessible from onsite
     if (n.type === 'wifiap' || n.type === 'iot') return true;
     // Workstations in zones 0-2 are accessible (lobby, offices)
     if (n.type === 'workstation' && n.zone <= 2) return true;
     // High-value targets with physical security vulns
-    if (n.zone >= 3 && n.vulns.some(v => v.category.id === 'physical' && !v.fixed)) return true;
+    if (n.zone >= 3 && n.vulns.some(v => v.category.id === 'physical' && !v.fixed && !v.mitigated)) return true;
     return false;
   });
   if (!physicalTargets.length) return null;
@@ -4557,6 +4611,7 @@ function ptPickTarget(pt) {
 
 function updatePentester(pt, dt) {
   const rt = R.redTeam;
+  const inHeadStart = R.elapsed < getHeadStart();
 
   // Handle cooldown
   if (pt.state === 'cooldown') {
@@ -4573,6 +4628,7 @@ function updatePentester(pt, dt) {
     pt.progress += dt;
     if (pt.progress >= pt.totalTime) {
       pt.onsite = true;
+      pt.onsiteAttempts = 0;
       pt.state = 'idle';
       pt.progress = 0;
       addLog(`⚠ RED TEAM: Operator is now onsite (coffee shop)`, 'warn');
@@ -4592,14 +4648,21 @@ function updatePentester(pt, dt) {
       const target = R.net.nodes[pt.targetNode];
       if (!target) { ptReset(pt, 3); return; }
 
-      // Physical security vulns on target affect success
-      const physVulns = target.vulns.filter(v => v.category.id === 'physical' && !v.fixed);
+      pt.onsiteAttempts = (pt.onsiteAttempts || 0) + 1;
+      // Physical security vulns on target affect success. The category is mitigate-only, so
+      // "addressed" means mitigated and still holding.
+      const physVulns = target.vulns.filter(v => v.category.id === 'physical' && !v.fixed && !(v.mitigated && getMitigationFactor(v) >= 0.3));
       const physVulnBonus = physVulns.length * 0.15;
       // High risk = badge-controlled infrastructure (server rooms, data centers) —
       // classified by type, so a zone-5 IoT sensor is still a low-risk grab
       const isHighRisk = target.zone >= 3 && !PHYS_LOW_RISK_TYPES.has(target.type);
       const baseChance = isHighRisk ? 0.40 : 0.65;
-      const chance = Math.min(0.85, baseChance + physVulnBonus);
+      let chance = Math.min(0.85, baseChance + physVulnBonus);
+      // Defenses matter onsite too: a hardened, EDR-monitored or fully patched box is a much
+      // harder grab than a lobby AP on factory firmware.
+      if (target.hardened) chance *= 0.25;
+      if (target.deepScanned) chance *= 0.6;
+      if (target.rebuilt || (target.vulns.length && target.vulns.every(v => v.fixed))) chance *= 0.5;
 
       if (Math.random() < chance) {
         // SUCCESS: total control, instant persistence
@@ -4614,22 +4677,25 @@ function updatePentester(pt, dt) {
         if (pt.state === 'persisting' || pt.state === 'pivoting') {
           target.persistence = true;
           R.redTeam.persistedNodes.add(target.id);
-          pt.state = 'idle'; // done, move on
+          if (getDetectionTier(target) === 1) target.persistenceKnown = true;
+          rtApplyStrategicBuff(target);
+          rtPostExploitRecon(target);
+          ptReset(pt, randf(1, 3)); // done, move on
         }
       } else {
         // FAILED
         if (isHighRisk) {
           // Roll for incarceration
-          const physSecFixed = target.vulns.some(v => v.category.id === 'physical' && v.fixed);
+          const physSecFixed = target.vulns.some(v => v.category.id === 'physical' && (v.fixed || v.mitigated));
           const catchChance = physSecFixed ? 0.75 : 0.60;
           if (Math.random() < catchChance) {
             // CAUGHT — pentester permanently removed
             addLog(`✓ Physical intrusion attempt on ${target.name} FAILED — suspect detained by security!`, 'ok');
             sfxFixOk();
-            // Remove pentester permanently
-            const idx = R.redTeam.pentesters.indexOf(pt);
-            if (idx >= 0) R.redTeam.pentesters.splice(idx, 1);
-            addLog(`RED TEAM lost an operator (${R.redTeam.pentesters.length} remaining)`, 'info');
+            // Remove pentester permanently (filtered out after the update loop)
+            pt.incarcerated = true;
+            pt.state = 'incarcerated';
+            addLog(`RED TEAM lost an operator (${R.redTeam.pentesters.filter(p => !p.incarcerated).length} remaining)`, 'info');
             return;
           } else {
             // Escaped — retreat to coffee shop
@@ -4667,8 +4733,8 @@ function updatePentester(pt, dt) {
   // IDLE: pick a target
   if (pt.state === 'idle') {
     // Onsite pentester: try physical targets first
-    if (pt.onsite) {
-      const target = ptPickPhysicalTarget(pt);
+    if (pt.onsite && !inHeadStart) {
+      const target = (pt.onsiteAttempts || 0) < ONSITE_MAX_ATTEMPTS ? ptPickPhysicalTarget(pt) : null;
       if (target) {
         pt.targetNode = target.id;
         pt.state = 'physical';
@@ -4677,21 +4743,25 @@ function updatePentester(pt, dt) {
         addLog(`⚠ RED TEAM: Operator attempting physical access to ${target.name}...`, 'warn');
         return;
       }
-      // No physical targets — fall through to normal targeting (can still do remote from onsite)
+      // Nothing left worth grabbing, or the visit has run its course: the operator leaves.
+      // They can be dispatched again if the team gets stuck later.
+      pt.onsite = false;
+      pt.onsiteAttempts = 0;
+      addLog(`⚠ RED TEAM: Onsite operator has left the premises`, 'warn');
     }
     // Persistence re-entry: a planted backdoor lets the red team re-compromise a reclaimed
     // node in seconds — no exploit roll, hardening bypassed. This is why Burn & Rebuild
-    // is the only true answer to persistence. Brief pause after IR gives the defender a beat.
-    const reentryNodes = ptAvailableFootholds(pt)
+    // is the only true answer to persistence. REENTRY_DELAY after IR is the defender's window.
+    const reentryNodes = inHeadStart ? [] : ptAvailableFootholds(pt)
       .filter(fId => rt.persistedNodes.has(fId) && !rt.compromised.has(fId))
       .map(fId => R.net.nodes[fId])
-      .filter(n => n && !n.rebuilding && (!n.reclaimedAt || R.elapsed - n.reclaimedAt >= 8));
+      .filter(n => n && !n.rebuilding && (!n.reclaimedAt || R.elapsed - n.reclaimedAt >= REENTRY_DELAY));
     if (reentryNodes.length && Math.random() < 0.6) {
       const target = pick(reentryNodes);
       pt.targetNode = target.id;
       pt.state = 'reentering';
       pt.progress = 0;
-      pt.totalTime = randf(4, 7) * pt.speedMult;
+      pt.totalTime = randf(6, 10) * pt.speedMult;
       queueDetectionAlert(target, 'scanning', pt.id);
       return;
     }
@@ -4728,14 +4798,11 @@ function updatePentester(pt, dt) {
       const learnCount = Math.min(unknownCats.length, rand(1, 3));
       for (let i = 0; i < learnCount; i++) intelSet.add(unknownCats[i]);
 
-      // During head start, pentesters don't reach this code (blocked in processRedTeam)
-      // but just in case — gather intel only before head start ends
-      if (R.elapsed < getHeadStart()) {
-        const msg = pick(RT_PROBE_MSGS);
-        const tier = getDetectionTier(target);
-        if (tier === 1) addLog(`⚠ ${msg} ${target.name}`, 'warn');
-        else if (tier === 2) addLog(`⚠ Unusual traffic detected in ${ZONE_NAMES[target.zone] || 'Unknown'} zone`, 'warn');
-        ptReset(pt, randf(2, 5));
+      // Head start: reconnaissance only. The red team builds intel and the player sees probes
+      // on nodes they've already scanned (Tier 2 got the vague zone alert when the probe began).
+      if (inHeadStart) {
+        if (getDetectionTier(target) === 1) addLog(`⚠ ${pick(RT_PROBE_MSGS)} ${target.name}`, 'warn');
+        ptReset(pt, randf(3, 6));
         return;
       }
 
@@ -4761,7 +4828,8 @@ function updatePentester(pt, dt) {
       if (target.hardened) {
         sfxBlocked();
         const tier = getDetectionTier(target);
-        if (tier <= 2) addLog(`✓ Attack on ${target.name} blocked — system hardened`, 'ok');
+        if (tier === 1) addLog(`✓ Attack on ${target.name} blocked — system hardened`, 'ok');
+        else if (tier === 2) addLog(`✓ Suspicious activity in ${ZONE_NAMES[target.zone] || 'Unknown'} zone subsided`, 'ok');
         ptReset(pt, randf(3, 5));
         return;
       }
@@ -4769,7 +4837,8 @@ function updatePentester(pt, dt) {
       // Attempt exploit using existing logic
       const vuln = rtTryExploit(target, pt);
       if (vuln) {
-        // SUCCESS - compromise the node
+        // SUCCESS - compromise the node; any helper doubled onto this attempt stands down
+        ptResetHelpers(pt, randf(1, 3));
         ptCompromiseNode(pt, target, vuln);
       } else {
         // FAILED
@@ -4779,6 +4848,7 @@ function updatePentester(pt, dt) {
           addLog(`✓ Attack on ${target.name} blocked — ${reason}`, 'ok');
         } else if (tier === 2) {
           addLog(`✓ Suspicious activity in ${ZONE_NAMES[target.zone] || 'Unknown'} zone subsided`, 'ok');
+          rtMaybeFalsePositive(target);
         }
         sfxBlocked();
         ptReset(pt, randf(3, 5));
@@ -4805,6 +4875,7 @@ function updatePentester(pt, dt) {
 
       const tier = getDetectionTier(target);
       if (tier === 1) {
+        target.persistenceKnown = true;
         addLog(`🔴 Persistence established on ${target.name}!`, 'crit');
         setTimeout(() => tryContextualHint('hint_persistence'), 2000);
       }
@@ -4812,9 +4883,12 @@ function updatePentester(pt, dt) {
       // Post-exploitation recon: learn vulns on neighbors
       rtPostExploitRecon(target);
 
-      // Apply strategic buff
+      // Apply strategic buff (idempotent per node)
       rtApplyStrategicBuff(target);
 
+      // A helper doubled onto this node stands down too — otherwise it would "complete" the
+      // same persistence a second time.
+      ptResetHelpers(pt, randf(1, 3));
       ptReset(pt, randf(1, 3));
     }
     return;
@@ -4827,7 +4901,8 @@ function updatePentester(pt, dt) {
     // If source was reclaimed during pivot, pivot fails
     if (!source || !rt.compromised.has(pt.sourceNode)) {
       const tier = source ? getDetectionTier(source) : 3;
-      if (tier <= 2) addLog(`✓ Lateral movement from ${source ? source.name : 'unknown'} interrupted`, 'ok');
+      if (tier === 1) addLog(`✓ Lateral movement from ${source.name} interrupted`, 'ok');
+      else if (tier === 2) addLog(`✓ Suspicious lateral traffic in ${ZONE_NAMES[source.zone] || 'Unknown'} zone subsided`, 'ok');
       ptReset(pt, randf(2, 4));
       return;
     }
@@ -4843,7 +4918,7 @@ function updatePentester(pt, dt) {
         sfxBlocked();
         const tier = getDetectionTier(target);
         if (tier === 1) addLog(`✓ Lateral movement to ${target.name} blocked`, 'ok');
-        else if (tier === 2) addLog(`✓ Suspicious lateral traffic in ${ZONE_NAMES[target.zone] || 'Unknown'} subsided`, 'ok');
+        else if (tier === 2) { addLog(`✓ Suspicious lateral traffic in ${ZONE_NAMES[target.zone] || 'Unknown'} subsided`, 'ok'); rtMaybeFalsePositive(target); }
         ptReset(pt, randf(3, 5));
       }
     }
@@ -4874,12 +4949,27 @@ function maybeDoubleUp() {
   helper.targetNode = target.targetNode;
   helper.sourceNode = target.sourceNode;
   helper.doubledWith = target.id;
-  helper.progress = target.progress; // sync progress
-  helper.totalTime = target.totalTime;
-
-  // Speed up: halve remaining time for the primary pentester
+  // Speed up: halve remaining time for the primary pentester; the helper mirrors it
   const remaining = target.totalTime - target.progress;
   target.totalTime = target.progress + remaining * 0.5;
+  helper.progress = target.progress; // sync progress
+  helper.totalTime = target.totalTime;
+}
+
+// "Secured" for the early win: every discovered node is scanned and none carries an unaddressed
+// medium-or-worse vulnerability. A mitigation counts only while it still holds real strength —
+// an eroded stopgap is not a secured system.
+function isNetworkSecured() {
+  for (const n of R.net.nodes) {
+    if (!n.discovered) continue;
+    if (!n.scanned || n.rebuilding) return false;
+    for (const v of n.vulns) {
+      if (v.fixed || v.severity < 4) continue;
+      if (v.mitigated && getMitigationFactor(v) >= 0.3) continue;
+      return false;
+    }
+  }
+  return true;
 }
 
 function rtWeightedPick(candidates, weightFn) {
@@ -4906,9 +4996,10 @@ function rtGetNeighbors(nodeId) {
 
 function processRedTeam(dt) {
   if (!R || R.phase === 'COMPLETE') return;
-  // Head start: red team inactive for first 3 minutes
-  if (R.elapsed < getHeadStart()) return;
   const rt = R.redTeam;
+  // During the head start the red team only probes (see the 'scanning' state) — no exploits,
+  // no physical dispatch, no backdoor re-entry, and the lockout clock does not run.
+  const inHeadStart = R.elapsed < getHeadStart();
 
   // Strategic buff decay
   rt.exploitBonus = Math.max(0, rt.exploitBonus - 0.002 * dt);
@@ -4919,7 +5010,7 @@ function processRedTeam(dt) {
       if (R.elapsed >= a.fireAt) {
         addLog(a.msg, a.level);
         const node = R.net.nodes[a.nodeId];
-        if (node && a.eventType === 'compromised' && !node.compromiseConfirmed) {
+        if (node && (a.eventType === 'compromised' || a.eventType === 'anomaly') && !node.compromiseConfirmed && !node.investigating) {
           node.anomaly = true; // Tier 2: anomaly, not confirmed
           renderAssetList();
           if (R.selectedNode === a.nodeId) renderDetail();
@@ -4930,12 +5021,12 @@ function processRedTeam(dt) {
     });
   }
 
-  // Process each pentester independently
-  let allIdle = true;
-  for (const pt of rt.pentesters) {
-    if (pt.state !== 'idle') allIdle = false;
-    updatePentester(pt, dt);
-  }
+  // Process each pentester independently. Incarcerated operators are removed after the loop so
+  // the array is never spliced mid-iteration.
+  for (const pt of rt.pentesters) updatePentester(pt, dt);
+  if (rt.pentesters.some(p => p.incarcerated)) rt.pentesters = rt.pentesters.filter(p => !p.incarcerated);
+
+  if (inHeadStart) return;
 
   // Check for doubling up
   maybeDoubleUp();
@@ -4953,8 +5044,7 @@ function processRedTeam(dt) {
   // red team has no active presence (no compromises, footholds, onsite/traveling operators).
   const noRtPresence = rt.compromised.size === 0 && !hasFootholds && !anyOnsite &&
     !rt.pentesters.some(p => p.state === 'traveling' || p.state === 'physical');
-  const allDiscoveredScanned = R.net.nodes.every(n => !n.discovered || n.scanned);
-  if (noRtPresence && allDiscoveredScanned) {
+  if (noRtPresence && isNetworkSecured()) {
     rt.lockedOutTimer = (rt.lockedOutTimer || 0) + dt;
   } else {
     rt.lockedOutTimer = 0;
@@ -4975,30 +5065,6 @@ function processRedTeam(dt) {
   }
 }
 
-function findPath(startId, endId) {
-  // BFS shortest path
-  const visited = new Set();
-  const queue = [[startId]];
-  visited.add(startId);
-
-  while (queue.length) {
-    const path = queue.shift();
-    const current = path[path.length - 1];
-    if (current === endId) return path;
-
-    const neighbors = [];
-    for (const [a, b] of R.net.edges) {
-      if (a === current && !visited.has(b)) neighbors.push(b);
-      if (b === current && !visited.has(a)) neighbors.push(a);
-    }
-    for (const n of neighbors) {
-      visited.add(n);
-      queue.push([...path, n]);
-    }
-  }
-  return null; // no path
-}
-
 // processAudit removed — replaced by processRedTeam()
 
 /* ═══════════════════════════════════════════════════════════════
@@ -5014,7 +5080,7 @@ function endRun() {
   const knownVulns = allVulns.filter(v => v.revealed);
   const fixedVulns = allVulns.filter(v => v.fixed);
   const mitigatedVulns = allVulns.filter(v => v.mitigated && !v.fixed);
-  const compromisedCount = R.redTeam.compromised.size;
+  const compromisedCount = R.net.nodes.filter(n => n.incidents && n.incidents.length).length; // ever compromised
   const stillCompromised = R.net.nodes.filter(n => n.compromised).length;
   const breaches = R.redTeam.breachedCritical.length;
   const criticalAssets = R.net.nodes.filter(n => n.zone === 4);
@@ -5038,15 +5104,15 @@ function endRun() {
   // ── ASSESSMENT (15%) — % of total vulns identified ──
   const assessment = allVulns.length > 0 ? clamp((knownVulns.length / allVulns.length) * 100, 0, 100) : 100;
 
-  // ── RESPONSE (15%) — avg time to respond to compromises (100 if none) ──
-  const compromisedNodes = R.net.nodes.filter(n => n.compromisedAt);
+  // ── RESPONSE (15%) — avg time from compromise to reclaim, per incident (100 if none) ──
+  // Measured against a fixed window: a 30s response scores ~83, 90s scores 50, an incident
+  // left open for RESPONSE_WINDOW or longer scores 0. Incidents never detected run to end of clock.
+  const incidents = R.net.nodes.flatMap(n => n.incidents || []);
   let response = 100;
-  if (compromisedNodes.length > 0) {
-    const avgResponse = compromisedNodes.reduce((s, n) => {
-      const responded = n.reclaimedAt || R.elapsed;
-      return s + (responded - n.compromisedAt);
-    }, 0) / compromisedNodes.length;
-    response = clamp(100 - (avgResponse / R.elapsed) * 100, 0, 100);
+  if (incidents.length > 0) {
+    const avgResponse = incidents.reduce((s, inc) =>
+      s + Math.max(0, (inc.reclaimedAt == null ? R.elapsed : inc.reclaimedAt) - inc.at), 0) / incidents.length;
+    response = clamp(100 - (avgResponse / RESPONSE_WINDOW) * 100, 0, 100);
   }
 
   // ── EFFICIENCY (15%) — share of known risk addressed vs share of budget consumed ──
@@ -5069,7 +5135,10 @@ function endRun() {
     // Spent nothing: perfectly efficient if anything got addressed (free playbook fixes), else idle
     efficiency = (riskRatio > 0 || addressableRisk === 0) ? 100 : 0;
   } else {
-    efficiency = clamp((riskRatio / spendRatio) * 70, 0, 100);
+    // Geometric blend of "how much risk you removed" and "how cheaply you did it relative to your
+    // income". Capped by sqrt(riskRatio), so hoarding budget while fixing little can't score high;
+    // removing everything on every dollar received scores 100.
+    efficiency = clamp(100 * Math.sqrt(riskRatio * Math.min(1, riskRatio / spendRatio)), 0, 100);
   }
 
   // ── FINAL SCORE ──
@@ -5120,7 +5189,7 @@ function endRun() {
   if (grade !== 'F' && R.threatLevel > (save.stats.highestThreatCleared || 0)) save.stats.highestThreatCleared = R.threatLevel;
 
   // Check achievement unlocks
-  checkAchievements({ coverage, grade, breaches, finalScore, budgetRemaining: R.budget, elapsed: R.elapsed, clockSpeed: R.clockSpeed, threatLevel: R.threatLevel, diffScore: R.diffScore });
+  checkAchievements({ coverage, grade, breaches, compromisedCount, finalScore, budgetRemaining: R.budget, elapsed: R.elapsed, clockSpeed: R.clockSpeed, threatLevel: R.threatLevel, diffScore: R.diffScore });
 
   writeSave();
 
@@ -5150,17 +5219,20 @@ function checkAchievements(data) {
   if (save.stats.totalRuns >= 5) unlock('five_runs');
   if (save.stats.totalRuns >= 10) unlock('ten_runs');
   if (data.coverage >= 100) unlock('clean_sweep');
-  if (data.breaches === 0) unlock('zero_breach');
+  if (data.breaches === 0 && data.compromisedCount === 0 && data.grade !== 'F') unlock('zero_breach');
   // Penny Pincher: spent less than 50% of total budget received (remaining > spent)
   if (R.budgetSpent > 0 && R.budget > R.budgetSpent) unlock('penny_pincher');
   if (gradeRank(data.grade) >= gradeRank('A') && R.budget >= 10000) unlock('budget_hero');
   // Speed Run: early win (under 8 min)
   if (data.elapsed < 480 && data.grade !== 'F') unlock('speed_run');
-  // No Stone Unturned: all assets discovered
-  if (R.net.nodes.every(n => n.discovered)) unlock('no_stone');
-  // Critical Condition: all critical-severity vulns (9-10) fixed
+  // No Stone Unturned: every shadow IT device found
+  const shadow = R.net.nodes.filter(n => n.shadowIT);
+  if (shadow.length > 0 && shadow.every(n => n.discovered)) unlock('no_stone');
+  // Critical Condition: every critical-severity vuln (9-10) addressed — fixed, or mitigated when
+  // mitigation is all that exists for it (zero-days, physical, governance-locked)
   const critVulns = R.net.nodes.flatMap(n => n.vulns.filter(v => v.severity >= 9 && v.revealed));
-  if (critVulns.length > 0 && critVulns.every(v => v.fixed)) unlock('crit_cond');
+  const addressed = v => v.fixed || (v.mitigated && (v.fixLocked || v.category.fixTypes.every(t => t === 'mitigate')));
+  if (critVulns.length > 0 && critVulns.every(addressed)) unlock('crit_cond');
   if ((data.diffScore || data.threatLevel) >= 8 && data.grade !== 'F') unlock('odds');
   if (save.intel >= Math.max(...NETWORK_TEMPLATES.map(t => t.intelReq))) unlock('completionist'); // all templates unlocked
 }
@@ -5426,11 +5498,11 @@ function _renderAssetListNow() {
       const riskPct = n.scanned ? Math.min(100, totalSev / maxPossibleSev * 100) : 0;
       if (riskPct > 0) riskLayers += `<div class="asset-bar-fill ab-risk" id="ab-${bi}-r" style="width:${riskPct}%"></div>`;
       if (n.anomaly && !n.compromiseConfirmed) {
-        riskLayers += `<div class="asset-bar-fill" id="ab-${bi}-a" class="anim-pulse-1_5" style="width:100%;background:var(--amber);z-index:2"></div>`;
+        riskLayers += `<div class="asset-bar-fill anim-pulse-1_5" id="ab-${bi}-a" style="width:100%;background:var(--amber);z-index:2"></div>`;
       } else if (n.compromised && (n.compromiseConfirmed || getDetectionTier(n) === 1)) {
         riskLayers += `<div class="asset-bar-fill ab-comp" id="ab-${bi}-c" style="width:100%"></div>`;
-      } else if (n.persistence && !n.compromised) {
-        riskLayers += `<div class="asset-bar-fill" id="ab-${bi}-persist" class="anim-pulse-2" style="width:100%;background:var(--red);opacity:0.4;z-index:2"></div>`;
+      } else if (playerKnowsPersistence(n) && !n.compromised) {
+        riskLayers += `<div class="asset-bar-fill anim-pulse-2" id="ab-${bi}-persist" style="width:100%;background:var(--red);opacity:0.4;z-index:2"></div>`;
       }
       if (n.investigating) {
         const irPct = Math.min(100, (n.irProgress / n.irTotalTime) * 100);
@@ -5493,7 +5565,7 @@ function renderDetail() {
       <div class="detail-row"><span class="detail-label">Criticality</span><span class="detail-value">${'★'.repeat(node.criticality)}${'☆'.repeat(5 - node.criticality)}</span></div>
       ${node.compromised && node.compromiseConfirmed ? '<div style="color:var(--red);padding:4px 0;font-weight:bold">☠ COMPROMISED — Red team has access</div>' : ''}
       ${node.anomaly && !node.compromiseConfirmed ? '<div class="anim-pulse-1_5" style="color:var(--amber);padding:4px 0;font-weight:bold">⚠ ANOMALY DETECTED — Investigation required</div>' : ''}
-      ${node.persistence ? '<div class="anim-pulse-1_5" style="color:var(--red);padding:4px 0;font-weight:bold">🔓 PERSISTENCE — Backdoor active, Burn & Rebuild required</div>' : ''}
+      ${playerKnowsPersistence(node) ? '<div class="anim-pulse-1_5" style="color:var(--red);padding:4px 0;font-weight:bold">🔓 PERSISTENCE — Backdoor active, Burn & Rebuild required</div>' : ''}
     </div>`;
 
   // Scan button for unscanned nodes
@@ -5554,8 +5626,8 @@ function renderDetail() {
       <div class="fix-progress"><div class="fix-progress-bar" style="width:${pct}%;background:${barColor}"></div></div></div>`;
   }
 
-  // Burn & Rebuild: right below IR
-  if (node.persistence && !node.compromised && !node.rebuilding) {
+  // Burn & Rebuild: right below IR — only once the player actually knows about the backdoor
+  if (playerKnowsPersistence(node) && !node.compromised && !node.rebuilding) {
     const rebuildCost = REBUILD_COSTS[node.zone] || 12000;
     const canAfford = R.budget >= rebuildCost;
     const hasSlot = getActiveWorkCount() < R.teamSlots;
@@ -5614,9 +5686,6 @@ function renderDetail() {
           const effectiveExpl = v.mitigated ? v.exploitability * (1 - getMitigationFactor(v)) : v.exploitability;
           html += `<div class="detail-row"><span class="detail-label">Exploitability</span><span class="detail-value">${(effectiveExpl * 100).toFixed(0)}%${v.mitigated ? ' (mitigated)' : ''}</span></div>`;
         }
-        if (v.noFix) {
-          html += `<div style="font-size:11px;color:var(--red);padding:4px 0">⚠ Zero-day — no remediation available yet</div></div>`;
-        } else {
         html += `<div class="fix-buttons">`;
 
         // Fixed order: mitigate > configure > patch > replace (least to most effective)
@@ -5641,8 +5710,8 @@ function renderDetail() {
           if (ft === 'configure' && v.configured) continue;
           // Governance lock: only mitigate allowed
           if (v.fixLocked && ft !== 'mitigate') continue;
-          const ftInfo = FIX_TYPES[ft];
-          const costMult = isPartiallyFixed && ftInfo.effect === 'full' ? 1.5 : 1;
+          const ftInfo = getFixParams(v, ft);
+          const costMult = fixCostMult(v, ft);
           const minCost = Math.round(ftInfo.costRange[0] * costMult);
           const maxCost = Math.round(ftInfo.costRange[1] * costMult);
           const costStr = minCost === maxCost
@@ -5662,7 +5731,6 @@ function renderDetail() {
           </button>`;
         }
         html += `</div></div>`;
-        }
       }
       html += '</div>';
     });
@@ -5733,7 +5801,8 @@ function updateDetailButtons() {
   const investBtn = document.querySelector('[onclick^="startInvestigation"]');
   if (investBtn) {
     investBtn.disabled = teamFull;
-    if (teamFull) investBtn.textContent = 'Investigate (NO ANALYSTS)';
+    if (!investBtn.dataset.label) investBtn.dataset.label = investBtn.textContent.trim();
+    investBtn.textContent = teamFull ? `${investBtn.dataset.label} (NO ANALYSTS)` : investBtn.dataset.label;
   }
 
   // Update Burn & Rebuild button
@@ -5910,11 +5979,7 @@ function sfxFixFail() { beep(200, 0.15, 0.1); }
 function sfxBreach() { beep(150, 0.3, 0.12); setTimeout(() => beep(100, 0.3, 0.1), 200); }
 function sfxBlocked() { beep(1000, 0.05); setTimeout(() => beep(1400, 0.08), 60); }
 
-// Hook sounds into existing functions
-const _origScanAsset = scanAsset;
-scanAsset = function(id) { initAudio(); sfxScan(); _origScanAsset(id); };
-const _origStartFix = startFix;
-startFix = function(nid, vi, ft) { initAudio(); sfxFix(); _origStartFix(nid, vi, ft); };
+// (scan/fix sounds are played inside scanAsset/startFix, after their guards pass)
 
 /* ═══════════════════════════════════════════════════════════════
    BOOT SEQUENCE
@@ -6094,20 +6159,6 @@ function screenShake() {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   PAUSE SCREEN FLAVOR
-   ═══════════════════════════════════════════════════════════════ */
-const PAUSE_MESSAGES = [
-  'Systems on standby...',
-  'Threat clock paused — plan your next move.',
-  'The red team doesn\'t take breaks. But you can.',
-  'Time to think. What\'s the biggest risk right now?',
-  'Breathe. Triage. Execute.',
-  'Good analysts pause to prioritize.',
-  'Reviewing intel...',
-  'The network isn\'t going anywhere.',
-];
-
-/* ═══════════════════════════════════════════════════════════════
    CONSOLE EASTER EGG
    ═══════════════════════════════════════════════════════════════ */
 console.log(
@@ -6178,17 +6229,17 @@ console.log(
     // Escape: close modal first, then toggle pause
     if (e.key === 'Escape') {
       e.preventDefault();
-      if (!hideTopModal()) { if (R) togglePause(); }
+      if (!hideTopModal()) { if (isRunActive()) togglePause(); }
       return;
     }
-    if (!R) return;
+    if (e.key === '?') { showModal('run-help-modal'); return; }
+    if (!isRunActive()) return; // run-scoped shortcuts only act on a live run
     if (e.key === ' ' && !e.target.closest('button, input, select, [role="button"]')) { e.preventDefault(); togglePause(); }
     if (e.key === 's' && R.selectedNode !== null && !e.target.closest('input, select')) scanAsset(R.selectedNode);
     if (e.key === '1' && !e.target.closest('input, select')) setSpeed(1);
     if (e.key === '2' && !e.target.closest('input, select')) setSpeed(2);
     if (e.key === '3' && !e.target.closest('input, select')) setSpeed(4);
     if ((e.key === 'm' || e.key === 'M') && !e.target.closest('input, select')) toggleMute();
-    if (e.key === '?') showModal('run-help-modal');
     // Konami code: ↑↑↓↓←→←→BA
     const _k = window._konami || (window._konami = { seq: [], code: ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'] });
     _k.seq.push(e.key);

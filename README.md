@@ -33,7 +33,7 @@ The red team operates as **independent pentester agents** (count controlled by R
 
 Compromising key assets gives the red team lasting advantages — a VPN gateway tunnels past internal defenses, a domain controller grants credential access network-wide, a CI/CD server enables supply chain attacks.
 
-If the red team can't break in remotely, they may send a pentester **onsite** to attack Wi-Fi APs from a coffee shop or attempt physical penetration of secured areas — risking incarceration if caught.
+If the red team can't break in remotely, they may send a pentester **onsite** to attack Wi-Fi APs from a coffee shop or attempt physical penetration of secured areas — risking incarceration if caught. A visit is a handful of attempts, then the operator leaves; hardened nodes are off the menu and EDR or a fully patched box makes the grab much harder. The red team is not idle during your head start either: they probe the perimeter and build intel, visible on nodes you have scanned.
 
 ### Detection tiers
 
@@ -42,7 +42,7 @@ You can only defend what you can see. Detection depends on each node's security 
 | Tier | Condition | What you see |
 |------|-----------|-------------|
 | **Tier 1** | EDR deployed | Instant, specific alerts. Compromises immediately visible. |
-| **Tier 2** | Vuln scanned | Delayed, vague zone-level alerts. Compromises appear as amber **anomalies** — must investigate to confirm. |
+| **Tier 2** | Vuln scanned | Delayed (3-6s), vague zone-level alerts. Compromises appear as amber **anomalies** — must investigate to confirm. About a third of anomalies are noise from failed attacks. |
 | **Tier 3** | Unscanned / missing monitoring | Nothing. The red team owns the node and you don't know. |
 
 Vuln scanning a silently-compromised node reveals an anomaly. EDR deployment auto-confirms the breach. The "Missing Monitoring" vulnerability forces Tier 3 regardless of scan state — fix it or stay blind.
@@ -71,9 +71,9 @@ Fixes can fail for realistic reasons. Failed fixes can be reworked (1.5x cost). 
 When a compromise is detected, assign an analyst to investigate. IR is a **race** against the pentester's current activity:
 
 - **IR wins before persistence**: Attacker evicted, node hardened for 4 minutes
-- **Persistence wins before IR**: Attacker has a durable foothold that survives eviction — the red team can re-enter in seconds
+- **Persistence wins before IR**: Attacker has a durable foothold that survives eviction — about 20 seconds after IR the red team can walk back in through the backdoor in 6-10 seconds, bypassing hardening
 
-If persistence was established, your only option is **Burn & Rebuild** ($8-20K, 25-45s) — a scorched-earth system replacement that eliminates persistence, takes the node offline, and severs downstream red team access. The node comes back clean with zero vulnerabilities. **Costs one analyst permanently** — someone's getting fired.
+That 20-second window is your chance to start a rebuild. If persistence was established, your only option is **Burn & Rebuild** ($8-20K, 25-45s) — a scorched-earth system replacement that eliminates persistence, takes the node offline, and severs downstream red team access. The node comes back clean with zero vulnerabilities. **Costs one analyst permanently** — someone's getting fired.
 
 ### Analysts
 
@@ -89,7 +89,7 @@ The difficulty screen offers full control over game parameters:
 
 **Advantages** (8): MSSP Monitoring, Remote Attacker, Grizzled IT Veteran, Strong IAM, Threat Intel Feed, Network Mapper, Passive Recon, Incident Playbooks
 
-**Complications** (8): Government Oversight, Governance Requirements, Insider Threat, Pandemic Protocol, Legacy Env, Zero Day, Shadow IT, Supply Chain
+**Complications** (8): Government Oversight, Governance Requirements, Insider Threat, Pandemic Protocol, Legacy Env, Zero Day (one critical vuln with no patch — mitigate only), Shadow IT, Supply Chain
 
 Each modifier has three positions: **OFF**, **?** (random chance), and **ON**. Five presets (Tutorial through Nightmare) configure everything, or use Custom.
 
@@ -102,12 +102,12 @@ Any critical asset (zone 4) breached at difficulty 6+ = automatic **F** (heavy p
 | Containment | 30% |
 | Security Posture | 25% |
 | Assessment Coverage | 15% |
-| Incident Response | 15% |
-| Efficiency | 15% |
+| Incident Response | 15% — average time from compromise to reclaim, per incident |
+| Efficiency | 15% — share of known risk removed vs. share of income spent; hoarding doesn't score |
 
 Grades: **S** (95+, difficulty 6+ only) / **A** (85+) / **B** (70+) / **C** (55+) / **D** (40+) / **F**
 
-**Early win**: If you secure all discovered nodes, eliminate all compromises, and the red team has no footholds after 5 minutes, the engagement ends early.
+**Early win**: After 5 minutes, if every discovered node is scanned with no unaddressed medium-or-worse vulns, no compromises or footholds remain, and the red team has been locked out for a full minute, the engagement ends early. Arresting every operator ends it too.
 
 ![Post-engagement debrief — performance assessment across five scoring axes](screenshots/results-screen.png)
 
