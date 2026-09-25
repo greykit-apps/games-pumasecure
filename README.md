@@ -134,6 +134,7 @@ Earn **Intel** based on your grade and difficulty score. Higher difficulty = hig
 | Double-click | Quick action (Investigate > IR > Vuln Scan > Deploy EDR) |
 | Scroll | Zoom the map |
 | Drag | Pan the map |
+| Pinch | Zoom the map (touch) |
 | Space | Pause / unpause |
 | ? | Help |
 
