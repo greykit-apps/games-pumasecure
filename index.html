@@ -1399,7 +1399,7 @@ function loadSave() {
   try { const d = JSON.parse(localStorage.getItem(STORAGE_KEY)); return d && d.version ? d : defaultSave(); }
   catch { return defaultSave(); }
 }
-function writeSave() { localStorage.setItem(STORAGE_KEY, JSON.stringify(save)); }
+function writeSave() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(save)); } catch (e) { /* no storage, or full */ } }
 
 /* ═══════════════════════════════════════════════════════════════
    RUN STATE (per-run, not persisted)
