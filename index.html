@@ -403,6 +403,9 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
 }
 .hq-selector select:focus{outline:1px solid var(--amber);border-color:var(--amber)}
 .hq-nav{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;justify-content:center}
+/* greykit.games canon §1 — the credit; link styled here, not inline */
+.gk-credit a{color:var(--green);text-decoration:underline}
+#hq-screen .gk-credit{font-size:11px;color:var(--green-dim);letter-spacing:1px}
 
 /* Difficulty Panel */
 .diff-panel{width:100%;max-width:700px;margin:0 auto}
@@ -710,6 +713,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
       <button onclick="showModal('ach-modal')" aria-label="View achievements">Achievements</button>
       <button onclick="showModal('settings-modal')" aria-label="Open settings">Settings</button>
     </div>
+    <div class="gk-credit">Built by <a href="https://greykit.com/" target="_blank" rel="noopener">greykit.com</a></div>
   </div>
 
   <!-- ═══════════════ RUN SCREEN ═══════════════ -->
@@ -1034,7 +1038,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
             &bull; <strong style="color:var(--cyan)">PumaSecure</strong> — Taking over vulnerability management in the middle of a red team assessment!
           </p>
           <p style="margin-top:16px">Once again, this app was made by me, who is not a developer, using Claude Code.</p>
-          <p style="margin-top:16px;color:var(--amber)">Built by <a href="https://www.greykit.com/projects" target="_blank" style="color:var(--green);text-decoration:underline">greykit.com</a></p>
+          <p class="gk-credit" style="margin-top:16px;color:var(--amber)">Built by <a href="https://greykit.com/" target="_blank" rel="noopener">greykit.com</a></p>
         </div>
       </div>
     </div>
